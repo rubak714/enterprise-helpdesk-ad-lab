@@ -24,3 +24,6 @@ Downloaded and installed VirtualBox from virtualbox.org. Created three VMs:
 - DC01: Windows Server 2022 Eval ISO
 - CLIENT01: Windows 10 Eval ISO
 - LINUX01: Ubuntu Server 22.04 ISO
+
+Set each VM to use an "Internal Network" adapter (name it "CorpNet").
+DC01 also gets a NAT adapter for internet access during setup.
