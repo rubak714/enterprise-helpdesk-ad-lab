@@ -16,6 +16,18 @@ This lab simulates "CORP GmbH", which is a fictional German company with about 5
 - A Windows 10 workstation (named as - CLIENT01) joined to the domain
 - An Ubuntu 22.04 server (named as - LINUX01) joined to AD via realmd/SSSD
 
+## Why is this lab Important?
+
+Because I will be -
+
+- Building multiple virtual machines
+- Installing Windows and Linux
+- Practising my Networking skills and permissions
+- Creating an Active Directory environment
+- Running snapshots and backups
+- Experimenting freely
+- Breaking things without breaking my real PC
+
 ## How to set up this lab from scratch
 
 ### Step 1: Created the VMs
