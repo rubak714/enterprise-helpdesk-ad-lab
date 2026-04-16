@@ -15,3 +15,12 @@ This lab simulates "CORP GmbH", which is a fictional German company with about 5
 - A Windows Server 2022 domain controller (named as - DC01) running AD DS, DNS and DHCP
 - A Windows 10 workstation (named as - CLIENT01) joined to the domain
 - An Ubuntu 22.04 server (named as - LINUX01) joined to AD via realmd/SSSD
+
+## How to set up this lab from scratch
+
+### Step 1: Created the VMs
+
+Downloaded and installed VirtualBox from virtualbox.org. Created three VMs:
+- DC01: Windows Server 2022 Eval ISO
+- CLIENT01: Windows 10 Eval ISO
+- LINUX01: Ubuntu Server 22.04 ISO
