@@ -28,6 +28,16 @@ Because I will be -
 - Experimenting freely
 - Breaking things without breaking my real PC
 
+Not to mention, I will also be able to test the lab by -
+
+- Adding and managing users
+- Resettings passwords
+- Joining users or computers to a domain
+- Troubleshooting network and DNS issues
+- Simulating real help desk tickets
+
+In short, I will have a mini DNS center in my PC!
+
 ## How to set up this lab from scratch
 
 ### Step 1: Created the VMs
