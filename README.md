@@ -44,8 +44,10 @@ In short, I will have a mini DNS center in my PC!
 
 Downloaded and installed VirtualBox from virtualbox.org. Created three VMs:
 - DC01: Windows Server 2022 Eval ISO
-- CLIENT01: Windows 10 Eval ISO
+- CLIENT01: Windows 11 Eval ISO
 - LINUX01: Ubuntu Server 22.04 ISO
+
+Note: It is better to install **VirtualBox Extension Pack** which can save time later and it is great for *IT Home Labs* which can provide capabilities, used by IT Professionals everyday.
 
 Set each VM to use an "Internal Network" adapter (name it "CorpNet").
 DC01 also gets a NAT adapter for internet access during setup.
