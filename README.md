@@ -7,3 +7,11 @@ I have been helping family and friends with IT issues for years - password
 resets, Wi-Fi troubleshooting, printer problems, setting up new laptops and system optimization for better speed and battery life etc. I also helped my German landlord set up their router, new mobile phone setup and fix mobile issues on multiple occasions. But none of that shows up on a CV.
 
 So I decided to build the same kind of 'simulated' environment that a real company would have, document everything properly and show that I can help company and it's people with support work and administration related tasks systematically and not just 'I fixed my friend's laptop.'
+
+## What is in here
+
+This lab simulates "CORP GmbH", which is a fictional German company with about 50 employees across five departments. The infrastructure includes:
+
+- A Windows Server 2022 domain controller (named as - DC01) running AD DS, DNS and DHCP
+- A Windows 10 workstation (named as - CLIENT01) joined to the domain
+- An Ubuntu 22.04 server (named as - LINUX01) joined to AD via realmd/SSSD
