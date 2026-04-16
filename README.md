@@ -45,27 +45,27 @@ In short, I will have a mini DNS center in my PC!
 
 ### Created the VMs
 
-- DC01 (Windows Server 2022): The "Brain" of the company. Domain Controller, DNS, and DHCP.
+- DC01 (Windows Server 2025): The "Brain" of the company. Domain Controller, DNS, and DHCP.
 - CLIENT01 (Windows 11): An employee workstation joined to the corp.gmbh domain.
 - LINUX01 (Ubuntu 22.04): A Linux server integrated into the AD environment using realmd/SSSD.
 
-# Current Option: Cloud Deployment (Microsoft Azure)
+## Current Option: Cloud Deployment (Microsoft Azure)
 To ensure the lab runs smoothly without slowing down my physical laptop, I used the following Azure resources:
 
 - Virtual Network: 10.0.0.0/16 (Internal subnet for secure VM communication).
 
-## VM Sizing:
-- DC01: Standard_B2als_v2 - 2vcpus, 4GiB memory - Windows Server 2025 Datacenter: Azure Edition - x64 Gen2
+### VM Sizing:
+- DC01: Standard_B2als_v2 - 2vcpus, 4GiB memory - Windows Server *2025* Datacenter: Azure Edition - x64 Gen2
 - CLIENT01: Standard_ 
 - LINUX01: Standard_ 
 
-## Cost Management: 
+### Cost Management: 
 Configured Auto-shutdown schedules to preserve Azure credits.
 
-# Earlier Option: Local Deployment (VirtualBox)
+## Earlier Option: Local Deployment (VirtualBox)
 Originally planned it, but I discontinued it due to host RAM constraints.
 
-## Created the VMs
+### Created the VMs
 Downloaded and installed VirtualBox from virtualbox.org. Created three VMs:
 
 DC01: Windows Server 2022 Eval ISO
