@@ -325,10 +325,83 @@ Scrolled down in the log to see the user creation section and the final summary.
 
 ![Log file showing final user creation entries for Extern department and the summary showing 18 OUs, 32 groups, 52 users](screenshots/module2-adstructure-logs2-15.png)
 
-No errors anywhere in the log. Module 2 completed successfully. The Issue #5 was resolved completely.
+No errors anywhere in the log. Module 2 was completed successfully. And the Issue #5 was resolved completely.
 
 ---
 
+## ☁️ Module 3: Joining CLIENT01 to the Domain
+
+### 🟦 Step 1: Set DNS and verify resolution
+
+RDP'd into CLIENT01 using its public IP `9.141.72.22`. Opened PowerShell as Administrator and pointed DNS to DC01:
+
+```powershell
+Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses 10.0.0.4
+nslookup corp.gmbh
+```
+
+`nslookup` returned `Server: UnKnown`, `Address: 10.0.0.4`, then `Name: corp.gmbh`, `Address: 10.0.0.4`. The UnKnown next to Server just means reverse DNS is not configured for 10.0.0.4 yet, which is fine. The important result is that `corp.gmbh` resolved correctly to `10.0.0.4` confirming CLIENT01 is now querying DC01 for DNS.
+
+![PowerShell on CLIENT01 showing Set-DnsClientServerAddress followed by nslookup corp.gmbh resolving to 10.0.0.4](screenshots/module03-client01-nslookup-00.png)
+
+### 🟦 Step 2: Join CLIENT01 to corp.gmbh
+
+Joined the domain via the Windows GUI. Right click Start > System > Advanced system settings > Computer Name tab > Change > selected Domain > typed `corp.gmbh`.
+
+> Note: Domain join failed multiple times when using `corpAdmin`. That is a local Azure VM account and does not exist in the domain at all. The correct account is `CORP\labadmin` which was automatically added to Domain Admins when DC01 was promoted. See Issue #6 and #9.
+
+CLIENT01 restarted automatically after the join succeeded.
+
+### 🟦 Step 3: Confirm domain membership
+
+After restart, RDP'd back into CLIENT01. Ran in PowerShell:
+
+```powershell
+systeminfo | findstr /i "domain"
+```
+
+Output showed `Domain: corp.gmbh` confirming CLIENT01 is a member of the corp.gmbh domain.
+
+![PowerShell on CLIENT01 showing systeminfo findstr domain returning Domain corp.gmbh](screenshots/module03-client01-domain_join_success-01.png)
+
+Then opened System Properties to confirm visually:
+
+```powershell
+sysdm.cpl
+```
+
+System Properties showed `Full computer name: CLIENT01.corp.gmbh` and `Domain: corp.gmbh`.
+
+![System Properties on CLIENT01 showing Full computer name CLIENT01.corp.gmbh and Domain corp.gmbh](screenshots/module03-client01-sys-properties-02.png)
+
+### 🟦 Step 4: Move CLIENT01 to the correct OU
+
+Back on DC01, opened ADUC. Found CLIENT01 in the default Computers container. Right click > Move > selected `OU=Workstations, OU=Computer, OU=CORP`.
+
+GPOs are linked to `OU=Workstations`. Until CLIENT01 was moved here, no domain Group Policy would apply to it. The default Computers container is not an OU and GPOs cannot be linked to it.
+
+ADUC showed CLIENT01 now sitting inside Workstations under Computer under CORP.
+
+![ADUC showing CLIENT01 listed inside OU=Workstations under Computer under CORP in the corp.gmbh domain](screenshots/module03-client01-in-workstations-03.png)
+
+### 🟦 Step 5: Force Group Policy and verify
+
+Back on CLIENT01, ran:
+
+```powershell
+gpupdate /force
+gpresult /r
+```
+
+`gpupdate /force` returned `Computer Policy update has completed successfully` and `User Policy update has completed successfully`.
+
+`gpresult /r` showed the full Group Policy result. Key details: `OS Configuration: Member Workstation`, `Group Policy was applied from: DC01.corp.gmbh`, `Domain Name: CORP`, and under Applied Group Policy Objects it listed `Default Domain Policy`. This confirms CLIENT01 is receiving policy from the domain controller correctly.
+
+![PowerShell on CLIENT01 showing gpupdate /force completing successfully followed by gpresult /r showing Default Domain Policy applied from DC01.corp.gmbh](screenshots/module03-client01-gpresult-04.png)
+
+Module 3 was completed. In this way, CLIENT01 is domain-joined, in the correct OU and receiving Group Policy from DC01.
+
+---
 
 <details>
   <summary> Earlier Option: Local Deployment (VirtualBox)</summary>
