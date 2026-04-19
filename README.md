@@ -403,6 +403,124 @@ Module 3 was completed. In this way, CLIENT01 is domain-joined, in the correct O
 
 ---
 
+## ☁️ Module 4: Linux Integration on LINUX01
+
+### 🟦 Step 1: SSH into LINUX01
+
+SSH'd into LINUX01 from the laptop terminal using its public IP:
+
+```bash
+ssh linuxadmin@20.79.170.94
+```
+
+The Ubuntu welcome screen confirmed: system load 0.0, memory usage 3%, IPv4 address for eth0 at `10.0.0.6`, 0 updates pending. System was clean and ready.
+
+![Ubuntu welcome screen on LINUX01 showing system info including IPv4 address eth0 10.0.0.6 and system load 0.0](screenshots/module04-linux01-ssh-01.png)
+
+### 🟦 Step 2: Configure DNS - first attempt
+
+Edited `/etc/systemd/resolved.conf` and set `DNS=10.0.0.4` and `Domains=corp.gmbh`, then restarted the service:
+
+```bash
+sudo nano /etc/systemd/resolved.conf
+sudo systemctl restart systemd-resolved
+resolvectl status
+```
+
+The first `resolvectl status` output showed the Global section still had no DNS configured and eth0 was showing Azure default DNS `168.63.129.16`. Edited the file again and restarted again. Second attempt showed Global DNS Servers `10.0.0.4` and DNS Domain `corp.gmbh` in the Global section, but eth0 was still showing `168.63.129.16`.
+
+> This is Issue #10. Editing resolved.conf updates the Global DNS setting but Azure assigns DNS at the network interface level which overrides it. The eth0 interface was ignoring the global setting.
+
+![Terminal showing two attempts at editing resolved.conf. First attempt shows eth0 still on 168.63.129.16. Second attempt shows Global DNS 10.0.0.4 but eth0 still on Azure default](screenshots/module04-linux01-dns-02.png)
+
+### 🟦 Step 3: Fix DNS at interface level
+
+Applied the DNS override directly to the eth0 interface:
+
+```bash
+sudo resolvectl dns eth0 10.0.0.4
+sudo resolvectl domain eth0 corp.gmbh
+resolvectl status
+```
+
+This time `resolvectl status` showed the fix working at every level. Global section: `Current DNS Server: 10.0.0.4`, `DNS Servers: 10.0.0.4`, `DNS Domain: corp.gmbh`. Link 2 (eth0) section: `Current DNS Server: 10.0.0.4`, `DNS Servers: 10.0.0.4`, `DNS Domain: corp.gmbh`. Both Global and eth0 now pointing to DC01.
+
+![resolvectl status showing Current DNS Server 10.0.0.4 and DNS Domain corp.gmbh in both Global section and eth0 interface](screenshots/module04-linux01-dns-corrected-03.png)
+
+### 🟦 Step 4: Verify DNS resolution
+
+```bash
+nslookup corp.gmbh
+```
+
+Output: `Server: 127.0.0.53`, `Name: corp.gmbh`, `Address: 10.0.0.4`. The server showing as `127.0.0.53` is the local systemd-resolved stub resolver which is normal. The important result is `corp.gmbh` resolving to `10.0.0.4` confirming DC01 is reachable by name.
+
+![nslookup corp.gmbh output showing Name corp.gmbh resolving to Address 10.0.0.4](screenshots/module04-linux01-nslookup-04.png)
+
+### 🟦 Step 5: Create and run join-ad-linux.sh
+
+Created the three bash scripts directly on LINUX01 using nano, then made them executable and ran the domain join script:
+
+```bash
+nano /home/linuxadmin/join-ad-linux.sh
+nano /home/linuxadmin/linux-user-audit.sh
+nano /home/linuxadmin/setup-samba-share.sh
+chmod +x /home/linuxadmin/join-ad-linux.sh
+chmod +x /home/linuxadmin/linux-user-audit.sh
+chmod +x /home/linuxadmin/setup-samba-share.sh
+sudo /home/linuxadmin/join-ad-linux.sh
+```
+
+The script ran through all 6 steps. Step 1 synced the clock, confirmed `System clock synchronized: yes`. Step 2 configured DNS and confirmed `DNS OK`. Step 3 installed packages including realmd, sssd, sssd-tools, adcli, krb5-user, samba-common-bin and a long list of dependencies.
+
+![Terminal showing all three scripts created with nano, chmod applied, then join-ad-linux.sh running through steps 1 to 3 including clock sync, DNS check and package installation](screenshots/module04-linux01-join-running01-05.png)
+
+Step 4 discovered the domain and showed the full realm information: `corp.gmbh`, type kerberos, realm-name CORP.GMBH, server-software active-directory, client-software sssd. Step 5 joined the domain asking for the labadmin password. Step 6 configured SSSD and set up sudo rules for IT department groups. Final output: `=== Domain join complete ===`.
+
+![Terminal showing steps 4 to 6 of join-ad-linux.sh including domain discovery showing corp.gmbh kerberos realm, domain join completing, SSSD configured, sudo rules set for GRP-IT-L2-Admin and GRP-IT-L3-Infrastructure, and Domain join complete message](screenshots/module04-linux01-join-running02-06.png)
+
+### 🟦 Step 6: Verify domain membership and test AD user
+
+Ran `realm list` then immediately tested with `id thomas.mueller`:
+
+```bash
+realm list
+id thomas.mueller
+```
+
+`realm list` showed corp.gmbh fully configured: type kerberos, realm-name CORP.GMBH, domain-name corp.gmbh, configured kerberos-member, server-software active-directory, client-software sssd, login-formats %U, login-policy allow-realm-logins.
+
+`id thomas.mueller` returned his full AD identity: uid=626001133, gid=626000513 (domain users), and all his group memberships including grp-app-office365, grp-it-l3-infrastructure, grp-dept-it, grp-vpn-users, grp-projekt-iso27001, grp-fileshare-it. This confirms AD authentication is working on Linux and thomas.mueller's group memberships from the AD structure script are all visible.
+
+![Terminal showing realm list output for corp.gmbh followed by id thomas.mueller showing his UID and all AD group memberships including grp-it-l3-infrastructure and grp-dept-it](screenshots/module04-linux01-id-thomas-mueller-07.png)
+
+### 🟦 Step 7: Run user audit script
+
+```bash
+/home/linuxadmin/linux-user-audit.sh
+```
+
+Output showed local users with login shells: root (UID 0) and linuxadmin (UID 1000). AD users via SSSD section showed nobody at UID 65534. No custom sudoers files yet. No failed SSH logins in last 24 hours. Currently logged in: linuxadmin on pts/0 from 27.147.237.13.
+
+![linux-user-audit.sh output showing local users root and linuxadmin, AD users via SSSD section, no sudo files, no failed logins, linuxadmin currently logged in](screenshots/module04-linux01-user-audit-08.png)
+
+### 🟦 Step 8: Configure Samba shares
+
+```bash
+sudo /home/linuxadmin/setup-samba-share.sh
+```
+
+The script installed Samba and winbind, created share directories at `/srv/shares/allgemein` and `/srv/shares/entwicklung`, backed up the original smb.conf, wrote the new configuration with AD authentication (security = ADS, realm = CORP.GMBH, workgroup = CORP), and restarted smbd and nmbd.
+
+The smb.conf written to disk showed both shares configured correctly: `[Allgemein]` at `/srv/shares/allgemein` with `valid users = @"CORP\GRP-FileShare-Allgemein"`, and `[Entwicklung]` at `/srv/shares/entwicklung` with `valid users = @"CORP\GRP-Dept-Entwicklung" @"CORP\GRP-Dept-IT"`. Final line: `Samba shares configured successfully`.
+
+![Terminal showing smb.conf contents with Allgemein and Entwicklung share definitions, valid users set to AD groups, and Samba shares configured successfully message](screenshots/module04-linux01-samba-share-09.png)
+
+Module 4 was completed. LINUX01 is joined to corp.gmbh, AD users are authenticating via SSSD, thomas.mueller's group memberships are visible from Linux and Samba shares are configured with AD group-based access control. 
+Resolves Issue #7.
+
+---
+
 <details>
   <summary> Earlier Option: Local Deployment (VirtualBox)</summary>
     Originally planned it, but I discontinued it due to host RAM constraints.
