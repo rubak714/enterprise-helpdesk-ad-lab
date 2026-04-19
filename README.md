@@ -183,7 +183,7 @@ The screenshot below shows the full context. At the top you can see the connecti
 
 ### 🟦 Step 2: Promote DC01 to domain controller
 
-After AD DS installed, promoted DC01 to a domain controller and created the new forest `corp.gmbh`:
+After AD DS installed, promoted DC01 to a domain controller and created the new forest `corp.gmbh`. See Issue #8.
 
 ```powershell
 Install-ADDSForest -DomainName "corp.gmbh" -InstallDns -Force
@@ -326,7 +326,7 @@ Scrolled down in the log to see the user creation section and the final summary.
 
 ![Log file showing final user creation entries for Extern department and the summary showing 18 OUs, 32 groups, 52 users](screenshots/module2-adstructure-logs2-15.png)
 
-No errors anywhere in the log. Module 2 was completed successfully. And the Issue #5 was resolved completely.
+No errors anywhere in the log. Module 2 was completed successfully. And the Issue #5 and Issue #8 were resolved completely.
 
 ---
 
