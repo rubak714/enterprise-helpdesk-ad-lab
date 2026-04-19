@@ -219,7 +219,116 @@ dsa.msc
 
 ![Active Directory Users and Computers showing corp.gmbh domain listed in the tree](screenshots/module2-aduc-empty-04.png)
 
+
+### 🟦 Step 4: Configure DNS
+
+Created `C:\CorpLab\Setup-DNS.ps1` on DC01 using Notepad and ran it:
+
+```powershell
+notepad C:\CorpLab\Setup-DNS.ps1
+cd C:\CorpLab
+.\Setup-DNS.ps1
+```
+
+The script added a reverse lookup zone for `10.0.0.0/24`, an A record for `linux01` at `10.0.0.6`, an A record for `srv01` at `10.0.0.20` reserved for a future file server, CNAME aliases for `helpdesk` and `monitoring` both pointing to `srv01.corp.gmbh`, and set external forwarders to `8.8.8.8` and `1.1.1.1`.
+
+The output showed `DNS configured successfully` in green, followed by a full table of all records in the corp.gmbh zone including the A records, CNAME aliases, and all the Kerberos and LDAP SRV records that Active Directory created automatically.
+
+![PowerShell showing DNS configured successfully with complete record table including dc01, linux01, helpdesk CNAME, monitoring CNAME, srv01](screenshots/module2-dns-zones-05.png)
+
+Then opened DNS Manager to verify visually:
+
+```powershell
+dnsmgmt.msc
+```
+
+The DNS Manager showed the corp.gmbh forward lookup zone with all records: dc01 Host A at 10.0.0.4, linux01 Host A at 10.0.0.6, helpdesk Alias CNAME pointing to srv01.corp.gmbh, monitoring Alias CNAME pointing to srv01.corp.gmbh, and srv01 Host A at 10.0.0.20. Reverse Lookup Zones also created for the 10.0.0.0/24 subnet.
+
+![DNS Manager showing corp.gmbh forward zone with all A records, CNAME aliases and the full zone tree including Reverse Lookup Zones](screenshots/module2-dns-manager-06.png)
+
+Right-clicked DC01 in DNS Manager, Properties, Forwarders tab. Both forwarders showing: 8.8.8.8 resolving to dns.google and 1.1.1.1 resolving to one.one.one.one.
+
+![DNS Manager DC01 Properties Forwarders tab showing 8.8.8.8 dns.google and 1.1.1.1 one.one.one.one](screenshots/module2-dns-forwarders-07.png)
+
+### 🟦 Step 5: Configure DHCP
+
+Created `C:\CorpLab\Setup-DHCP.ps1` and ran it:
+
+```powershell
+.\Setup-DHCP.ps1
+```
+
+The script installed the DHCP Server role, authorized it in Active Directory, created scope `CorpNet-LAN` for range `10.0.0.100` to `10.0.0.200` with an 8 hour lease, excluded `10.0.0.1` to `10.0.0.50` for static server IPs, set DNS server option to `10.0.0.4` and domain name to `corp.gmbh`, and added a reservation for LINUX01 at `10.0.0.6`.
+
+There was a warning about no static IP addresses found on the computer. This is a known Azure behaviour and does not affect DHCP functionality. The scope still created and activated correctly.
+
+Output showed `DHCP configured successfully` in green, followed by the scope table: ScopeId `10.0.0.0`, SubnetMask `255.255.255.0`, Name `CorpNet-LAN`, State `Active`, StartRange `10.0.0.100`, EndRange `10.0.0.200`, LeaseDuration `08:00:00`.
+
+![PowerShell showing DHCP configured successfully with scope table showing CorpNet-LAN Active 10.0.0.100 to 10.0.0.200](screenshots/module2-dhcp-08.png)
+
+Then opened DHCP Manager to verify:
+
+```powershell
+dhcpmgmt.msc
+```
+
+DHCP Manager showed the full scope tree under `dc01.corp.gmbh`: IPv4, Scope [10.0.0.0] CorpNet-LAN, with Address Pool, Address Leases, Reservations containing `[10.0.0.6] LINUX01`, Scope Options, and Policies. The Scope Options panel on the right confirmed option 006 DNS Servers set to `10.0.0.4` and option 015 DNS Domain Name set to `corp.gmbh`.
+
+![DHCP Manager showing full scope tree with LINUX01 reservation at 10.0.0.6 and scope options showing DNS server 10.0.0.4 and domain corp.gmbh](screenshots/module2-dhcp-manager-09.png)
+
+### 🟦 Step 6: Build the full AD structure
+
+Created `C:\CorpLab\Setup-ADStructure.ps1` and ran it:
+
+```powershell
+.\Setup-ADStructure.ps1
+```
+
+The script ran for about 3 to 4 minutes. While it ran, the output streamed each creation in real time.
+
+The script built:
+- **18 Organizational Units** with German department names: CORP, Benutzer, IT, Vertrieb, Buchhaltung, Personal, Geschaeftsleitung, Entwicklung, Marketing, Extern, Computer, Workstations, Laptops, Server, Gruppen, ServiceAccounts, Konferenzraeume, Deaktiviert
+- **32 security groups**: department groups (GRP-Dept-*), file share groups (GRP-FileShare-*), IT support tiers GRP-IT-L1-Support / GRP-IT-L2-Admin / GRP-IT-L3-Infrastructure, application groups (GRP-App-ERP, GRP-App-CRM, GRP-App-GitLab, GRP-App-Jira, GRP-App-Office365), printer groups, and project groups
+- **52 user accounts** across 8 departments with realistic German names, correct group memberships, home directory paths, and forced password change at first logon
+
+When complete, the terminal showed the summary: `AD STRUCTURE SETUP COMPLETE`, Organizational Units: 18, Security Groups: 32, User Accounts: 52, and the log file path `C:\Setup\Logs\AD-Setup-2026-04-18-1727.log`.
+
+![Setup-ADStructure.ps1 completing showing AD STRUCTURE SETUP COMPLETE with counts of 18 OUs, 32 groups, 52 users and log file path](screenshots/module2-ads-strucuring-10.png)
+
+### 🟦 Step 7: Verify AD structure in ADUC
+
+Opened ADUC to check the structure visually. The left tree showed the full OU hierarchy exactly as designed: CORP at the top, then Benutzer with all department sub-OUs (Buchhaltung, Entwicklung, Extern, Geschaeftsleitung, IT, Marketing, Personal, Vertrieb), then Computer with Workstations/Laptops/Server, then Deaktiviert, Gruppen, Konferenzraeume, and ServiceAccounts.
+
+![ADUC showing full OU tree with all 18 OUs including Gruppen selected and the complete left panel hierarchy visible](screenshots/module2-aduc-ou-tree-10.png)
+
+Clicked the IT OU to verify users were created correctly in the right department. Showed 7 users: Daniel Bauer, Florian Koenig, Kevin Wagner, Lisa Schmidt, Petra Schulz, Sabine Lehmann, Thomas Mueller. All matching the script's IT department definition.
+
+![ADUC IT OU showing 7 users: Daniel Bauer, Florian Koenig, Kevin Wagner, Lisa Schmidt, Petra Schulz, Sabine Lehmann, Thomas Mueller](screenshots/module2-aduc-IT-12.png)
+
+Clicked Vertrieb OU. Showed 10 users: Anna Becker, Christian Roth, Julia Weber, Katharina Frank, Markus Lange, Melanie Seidel, Nadine Schubert, Patrick Huber, Stefan Hoffmann, Tobias Berger.
+
+![ADUC Vertrieb OU showing 10 users including Anna Becker, Stefan Hoffmann and others from the sales department](screenshots/module2-aduc-vertrieb-11.png)
+
+Clicked Gruppen OU to check the security groups. Showed all groups created with their German descriptions: GRP-App-CRM with "CRM-System Zugriff", GRP-App-ERP, GRP-App-GitLab, GRP-App-Jira, GRP-App-Office365, all department groups, all file share groups, and the IT tier groups GRP-IT-L1-Support with "L1 Helpdesk: password re...", GRP-IT-L2-Admin with "L2 Admin: GPO, DHCP, D...", GRP-PrinterBW and GRP-PrinterColor all visible.
+
+![ADUC Gruppen OU showing security groups list including GRP-App-*, GRP-Dept-*, GRP-FileShare-* and GRP-IT-L1-Support through L3 with German descriptions](screenshots/module2-aduc-groups-13.png)
+
+### 🟦 Step 8: Check the log file
+
+Opened the log file that the script wrote to `C:\Setup\Logs\AD-Setup-2026-04-18-1727.log` in Notepad to verify everything completed without errors.
+
+The log showed every action timestamped. Starting from 17:27:48, it logged `Starting AD structure setup for CORP GmbH`, then every OU creation with `[SUCCESS]` prefix: CORP, Benutzer, IT, Vertrieb, Buchhaltung, Personal, Geschaeftsleitung, Entwicklung, Marketing, Extern, Computer, Workstations, Laptops, Server, Gruppen, ServiceAccounts, Konferenzraeume, Deaktiviert. Then all 32 groups: GRP-Dept-IT, GRP-Dept-Vertrieb, GRP-Dept-Buchhaltung, GRP-Dept-Personal, GRP-Dept-GF, GRP-Dept-Entwicklung, GRP-Dept-Marketing, GRP-Dept-Extern, GRP-FileShare-Allgemein, GRP-FileShare-IT, GRP-FileShare-Vertrieb, GRP-FileShare-Buchhaltung, GRP-FileShare-Personal, and continuing through all groups.
+
+![Log file open in Notepad showing timestamped SUCCESS entries for all 18 OUs and beginning of 32 security groups](screenshots/module2-adstructure-logs1-14.png)
+
+Scrolled down in the log to see the user creation section and the final summary. The log showed all users being created with `[SUCCESS]` entries including the Entwicklung department users (Werner Schwarz, Sebastian Klein, Nina Wolf, Max Schaefer, Lena Zimmermann, Oliver Kruse, Tanja Fuchs, Philipp Lorenz, Carolin Beck), then Marketing users (Stefanie Meier, Jan Schmitt, Verena Neumann, Alexander Keller, Franziska Haas, Lukas Schreiber), then Extern users (Alex Novak, Maria Santos, Pierre Dupont, Ahmed Hassan, Yuki Tanaka, James Wilson, Olga Petrov, Carlos Rivera). Final log entries confirmed the summary: Organizational Units: 18, Security Groups: 32, User Accounts: 52.
+
+![Log file showing final user creation entries for Extern department and the summary showing 18 OUs, 32 groups, 52 users](screenshots/module2-adstructure-logs2-15.png)
+
+No errors anywhere in the log. Module 2 completed successfully. The Issue #5 was resolved completely.
+
 ---
+
 
 <details>
   <summary> Earlier Option: Local Deployment (VirtualBox)</summary>
