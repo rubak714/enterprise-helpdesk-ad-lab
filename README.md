@@ -127,7 +127,7 @@ LINUX01 is the Linux side of the lab. It will be integrated into Active Director
 | NSG | LINUX01-nsg |
 | Location | Germany West Central |
 
-> Note: Standard_B1s was not available in Germany West Central. Used Standard_D2ads_v7 instead. See Issue #8.
+> *Note:* Standard_B1s was not available in Germany West Central. Used Standard_D2ads_v7 instead. See Issue #8.
 
 ![LINUX01 overview showing status Running, OS Linux Ubuntu 24.04, Germany West Central](screenshots/module01-linux01-00.png)
 
