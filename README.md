@@ -158,6 +158,12 @@ Azure blocks ICMP ping by default so TCP port test was used instead.
 
 Both returned `TcpTestSucceeded: True`. All three VMs are on the same subnet and talking to each other. Module 1 complete.
 
+### 🟦 Step 7: Deallocate after session
+
+After taking all screenshots, all three VMs were deallocated to stop compute charges. Public IPs were deleted. New public IPs will be assigned at the start of each session.
+
+![All three VMs showing Stopped (deallocated) status in Azure portal](screenshots/module01-all-vms-stopped-running.png)
+
 ---
 
 <details>
