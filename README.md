@@ -537,6 +537,20 @@ Resolves Issue #7.
 
 ---
 
+## ☁️ What is coming next
+
+| Module | Status |
+|---|---|
+| Module 1: Infrastructure setup | Done |
+| Module 2: Active Directory, DNS, DHCP | Done |
+| Module 3: Join CLIENT01 to domain | Done |
+| Module 4: Linux integration via realmd/SSSD and Samba | Done |
+| Module 5: Helpdesk ticket simulations | Next session |
+| Module 6: Group Policy configuration | Next session |
+| Module 7: Security event monitoring | Next session |
+
+---
+
 <details>
   <summary> Earlier Option: Local Deployment (VirtualBox)</summary>
     Originally planned it, but I discontinued it due to host RAM constraints.
