@@ -166,6 +166,61 @@ After taking all screenshots, all three VMs were deallocated to stop compute cha
 
 ---
 
+## ☁️ Module 2: Active Directory, DNS and DHCP
+
+### 🟦 Step 1: Install AD DS role
+
+Still in the same PowerShell session where connectivity was tested, installed the Active Directory Domain Services role:
+
+```powershell
+Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
+```
+
+The screenshot below shows the full context. At the top you can see the connectivity test results from the previous step (TcpTestSucceeded True for both VMs), then immediately below it the AD DS installation running and completing with `Success: True`, `Exit Code: Success`, and `Feature Result: Active Directory Domain Services, Group P...`.
+
+![PowerShell showing connectivity test results followed immediately by AD DS installation completing with Success True](screenshots/module2-adds-install-00.png)
+
+### 🟦 Step 2: Promote DC01 to domain controller
+
+After AD DS installed, promoted DC01 to a domain controller and created the new forest `corp.gmbh`:
+
+```powershell
+Install-ADDSForest -DomainName "corp.gmbh" -InstallDns -Force
+```
+
+> Note: The first two attempts failed because copy-pasted parameters used Unicode em-dashes instead of ASCII hyphens, so PowerShell did not recognise them. Removed the extra parameters and Windows set the NetBIOS name CORP automatically. See Issue #5.
+
+The screenshot below shows the promotion in progress. DC01 is running `Install-ADDSForest`, validating the environment, running all prerequisite tests successfully, then starting to install the new forest and configure the DNS Server service. The server restarted automatically after this completed.
+
+![DC01 showing Install-ADDSForest running, all tests passed, installing new forest and configuring DNS service](screenshots/module2-install-addsforest-01.png)
+
+### 🟦 Step 3: Confirm domain created
+
+After the restart, RDP'd back into DC01 and ran:
+
+```powershell
+Get-ADDomain
+Get-ADForest
+```
+
+`Get-ADDomain` confirmed: `DNSRoot: corp.gmbh`, `NetBIOSName: CORP`, `PDCEmulator: DC01.corp.gmbh`, `DomainMode: Windows2025Domain`. DC01 is running all five FSMO roles as the only domain controller.
+
+![Get-ADDomain output showing DNSRoot corp.gmbh, NetBIOSName CORP, PDCEmulator DC01.corp.gmbh](screenshots/module2-domain-confirmed-03.png)
+
+`Get-ADForest` confirmed: `ForestMode: Windows2025Forest`, `RootDomain: corp.gmbh`, `GlobalCatalogs: DC01.corp.gmbh`. The forest is running at Windows Server 2025 functional level.
+
+![Get-ADForest output showing ForestMode Windows2025Forest, RootDomain corp.gmbh, GlobalCatalogs DC01.corp.gmbh](screenshots/module2-adforest-confirmed-02.png)
+
+Then opened Active Directory Users and Computers to confirm the domain was visible which closes Issues #5:
+
+```powershell
+dsa.msc
+```
+
+![Active Directory Users and Computers showing corp.gmbh domain listed in the tree](screenshots/module2-aduc-empty-04.png)
+
+---
+
 <details>
   <summary> Earlier Option: Local Deployment (VirtualBox)</summary>
     Originally planned it, but I discontinued it due to host RAM constraints.
