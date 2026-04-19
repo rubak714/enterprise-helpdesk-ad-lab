@@ -127,7 +127,7 @@ LINUX01 is the Linux side of the lab. It will be integrated into Active Director
 | NSG | LINUX01-nsg |
 | Location | Germany West Central |
 
-> *Note:* Standard_B1s was not available in Germany West Central. Used Standard_D2ads_v7 instead. See Issue 4, Issue #11.
+> *Note:* Standard_B1s was not available in Germany West Central. Used Standard_D2ads_v7 instead. See Issue #11.
 
 ![LINUX01 overview showing status Running, OS Linux Ubuntu 24.04, Germany West Central](screenshots/module01-linux01-00.png)
 
@@ -160,9 +160,10 @@ Both returned `TcpTestSucceeded: True`. All three VMs are on the same subnet and
 
 ### 🟦 Step 7: Deallocate after session
 
-After taking all screenshots, all three VMs were deallocated to stop compute charges. Public IPs were deleted. New public IPs will be assigned at the start of each session.
+After taking all screenshots, all three VMs were deallocated to stop compute charges. Public IPs were deleted. New public IPs will be assigned at the start of each session. Issue #4 and Issue #11 were resolved successfully.
 
 ![All three VMs showing Stopped (deallocated) status in Azure portal](screenshots/module01-all-vms-stopped-running.png)
+
 
 ---
 
