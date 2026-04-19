@@ -43,7 +43,7 @@ In short, I will have a mini DNS center in my PC!
 ## ☁️ How to set up this lab from scratch
 *Update:* The infrastructure is now built inside an Azure Virtual Network (VNet) named CorpNet, consisting of:
 
-### Created the VMs
+### VMs
 
 - DC01 (Windows Server 2025): The "Brain" of the company. Domain Controller, DNS, and DHCP.
 - CLIENT01 (Windows 11): An employee workstation joined to the corp.gmbh domain.
@@ -139,10 +139,29 @@ LINUX01 is the Linux side of the lab. It will be integrated into Active Director
 
 ![All three VMs running - CLIENT01, DC01, LINUX01 in RG-CorpGmbH, Germany West Central](screenshots/module01-compute-infra.png)
 
+### 🟦 Step 6: RDP into DC01 and verify connectivity
+
+RDP'd into DC01 using the downloaded RDP file. Server Manager opened confirming Windows Server 2025 is running.
+
+![Server Manager dashboard on DC01 showing Welcome to Server Manager](screenshots/module01-server-dc01.png)
+
+Then ran connectivity test from DC01 PowerShell to confirm all three VMs can reach each other over the internal subnet:
+
+```powershell
+Test-NetConnection -ComputerName 10.0.0.5 -Port 3389
+Test-NetConnection -ComputerName 10.0.0.6 -Port 22
+```
+
+Azure blocks ICMP ping by default so TCP port test was used instead.
+
+![PowerShell on DC01 showing TcpTestSucceeded True for both CLIENT01 port 3389 and LINUX01 port 22](screenshots/module01-test-connection-from-dc01.png)
+
+Both returned `TcpTestSucceeded: True`. All three VMs are on the same subnet and talking to each other. Module 1 complete.
+
 ---
 
 <details>
-  <summary>## Earlier Option: Local Deployment (VirtualBox)</summary>
+  <summary> Earlier Option: Local Deployment (VirtualBox)</summary>
     Originally planned it, but I discontinued it due to host RAM constraints.
 
     ### Created the VMs
@@ -152,7 +171,7 @@ LINUX01 is the Linux side of the lab. It will be integrated into Active Director
     - CLIENT01: Windows 11 Eval ISO
     - LINUX01: Ubuntu Server 22.04 ISO
 
-    *Note:* It is better to install VirtualBox Extension Pack which can save time later and it is great for IT Home Labs which can provide capabilities, used by IT Professionals everyday.
+    Note: It is better to install VirtualBox Extension Pack which can save time later and it is great for IT Home Labs which can provide capabilities, used by IT Professionals everyday.
 
     Set each VM to use an "Internal Network" adapter (name it "CorpNet"). DC01 also gets a NAT adapter for internet access during setup.
 </details>
