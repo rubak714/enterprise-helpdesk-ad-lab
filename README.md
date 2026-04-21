@@ -662,6 +662,21 @@ notepad "C:\Setup\Logs\Simulations\2026-04-19-2043.log"
 
 ![Simulation log file open showing all ticket entries timestamped and logged](screenshots/module05-simulations-logs-06.png)
 
+### 🟦 Step 5: Enable WinRM on CLIENT01 for remote diagnostics
+
+WinRM was not enabled on CLIENT01 by default which blocked remote PowerShell access from DC01. RDP'd into CLIENT01 and enabled it:
+
+```powershell
+whoami
+gpupdate /force
+Enable-PSRemoting -Force
+Set-Item WSMan:\localhost\Client\TrustedHosts -Value "DC01.corp.gmbh" -Force
+```
+
+`whoami` confirmed logged in as `client01\corpadmin`. `gpupdate /force` confirmed Computer and User Policy both updated successfully. `Enable-PSRemoting -Force` returned `WinRM has been updated to receive requests`, `WinRM service type changed successfully`, `WinRM service started`, `WinRM has been updated for remote management`, `WinRM firewall exception enabled`.
+
+![CLIENT01 PowerShell showing whoami client01\corpadmin, gpupdate /force completing, Enable-PSRemoting -Force enabling WinRM successfully](screenshots/module05-winrm-enabled-client01-08.png)
+
 ---
 
 ## 🟦 Issues resolved across all modules
