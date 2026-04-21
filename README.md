@@ -571,6 +571,18 @@ Resolves Issue #7.
 
 ---
 
+## ☁️ Module 5: Helpdesk Ticket Simulations
+
+### 🟦 Step 1: Restart VMs and reassign public IPs
+
+Started DC01 and CLIENT01 from Azure portal after they were deallocated from the previous session. Reassigned public IPs to both VMs since Azure releases them on deallocation.
+
+![Azure portal showing VMs being restarted at the start of the session](screenshots/module-05-restarting-vms-00.png)
+
+![Azure portal showing new public IP being assigned to DC01 after restarting](screenshots/module05-reassgning-public-ip-01.png)
+
+---
+
 ## 🟦 Issues resolved across all modules
 
 | # | Title | Type | Module |
