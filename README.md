@@ -719,6 +719,20 @@ The script created and configured four Group Policy Objects. Output showed each 
 
 ![Setup-GPO.ps1 output third part showing desktop policy and final summary](screenshots/module06-gpo-script-output-02.png)
 
+### 🟦 Step 2: Verify in GPMC
+
+Opened Group Policy Management Console to verify all GPOs were created and linked correctly:
+
+```powershell
+gpmc.msc
+```
+
+![GPMC overview showing corp.gmbh domain with all GPOs listed in the left panel](screenshots/module06-gpmc-overview-03.png)
+
+Clicked on the corp.gmbh domain node to see which GPOs are linked and their link order:
+
+![GPMC showing GPOs linked to the corp.gmbh domain with link status and order](screenshots/module06-gpmc-linked-07.png)
+
 ---
 
 ## 🟦 Issues resolved across all modules
