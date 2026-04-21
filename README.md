@@ -764,6 +764,18 @@ CORP-Security-Baseline GPO linked to OU=Workstations. Applies to all machines in
 
 ![CORP-Security-Baseline GPO security options settings](screenshots/module06-security-baseline-gpo-06.png)
 
+### 🟦 Step 6: Verify GPO on CLIENT01
+
+RDP'd into CLIENT01 and ran:
+
+```powershell
+gpupdate /force
+gpresult /r
+```
+
+![gpresult on CLIENT01 first part showing computer settings and applied GPOs from DC01.corp.gmbh](screenshots/module06-gpresult00-client01-09.png)
+
+![gpresult on CLIENT01 second part showing additional policy details and security group membership](screenshots/module06-gpresult01-client01-10.png)
 ---
 
 ## 🟦 Issues resolved across all modules
