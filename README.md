@@ -733,6 +733,25 @@ Clicked on the corp.gmbh domain node to see which GPOs are linked and their link
 
 ![GPMC showing GPOs linked to the corp.gmbh domain with link status and order](screenshots/module06-gpmc-linked-07.png)
 
+### 🟦 Step 3: Password policy settings
+
+Opened Default Domain Policy editor and navigated to Computer Configuration > Policies > Windows Settings > Security Settings > Account Policies > Password Policy:
+
+![Default Domain Policy password policy settings showing minimum length, complexity, maximum age and history](screenshots/module06-passport-policy-04.png)
+
+Then clicked Account Lockout Policy:
+
+| Setting | Value | Reason |
+|---|---|---|
+| Minimum password length | 12 characters | BSI IT-Grundschutz recommendation |
+| Complexity | Enabled | Uppercase, lowercase, number, special character |
+| Maximum age | 90 days | Company policy |
+| History | 24 passwords | Prevents reuse |
+| Lockout threshold | 5 attempts | Balance between security and usability |
+| Lockout duration | 30 minutes | Auto-unlocks after 30 minutes |
+
+![Account lockout policy settings showing threshold 5 attempts and duration 30 minutes](screenshots/module06-lockout-policy-05.png)
+
 ---
 
 ## 🟦 Issues resolved across all modules
