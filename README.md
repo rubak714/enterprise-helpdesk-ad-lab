@@ -811,6 +811,18 @@ The script queried the Windows Security event log for the last 24 hours and repo
 
 ![Get-SecurityEvents.ps1 output showing account lockout events section with Event 4740 results and source machines](screenshots/module07-dc01-lockout-events-02.png)
 
+### 🟦 Step 3: HTML security report
+
+The script exported a formatted HTML report to `C:\Setup\Logs\SecurityReports\`. Opened it in the browser inside DC01:
+
+```powershell
+start "C:\Setup\Logs\SecurityReports\SecurityReport-*.html"
+```
+
+The report showed a summary table with colour-coded status for each event category: failed logins count, lockout events, new accounts created and privileged group changes.
+
+![HTML security report open in browser showing colour-coded summary table with event counts and status indicators](screenshots/module07-dc01-security-html-report-03.png)
+
 ---
 
 ## 🟦 Issues resolved across all modules
