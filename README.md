@@ -785,6 +785,16 @@ Logged out of CLIENT01 and logged back in as a domain user to confirm domain aut
 
 ---
 
+## ☁️ Module 7: Security Event Monitoring
+
+### 🟦 Step 1: Restart DC01 for new session
+
+Started DC01 from Azure portal at the beginning of this session after it was deallocated.
+
+![Azure portal showing DC01 being restarted for module 7 session](screenshots/module07-dc01-restarting-00.png)
+
+---
+
 ## 🟦 Issues resolved across all modules
 
 | # | Title | Type | Module |
