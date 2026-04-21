@@ -758,6 +758,12 @@ CORP-Drive-Mapping GPO linked to the domain maps department shares automatically
 
 ![CORP-Drive-Mapping GPO settings showing drive map preferences configuration](screenshots/module06-drive-mapping-gpo-05.png)
 
+### 🟦 Step 5: Security baseline GPO
+
+CORP-Security-Baseline GPO linked to OU=Workstations. Applies to all machines in the Workstations OU. Settings include login warning banner, AutoRun disabled on all drives, and AutoAdminLogon disabled.
+
+![CORP-Security-Baseline GPO security options settings](screenshots/module06-security-baseline-gpo-06.png)
+
 ---
 
 ## 🟦 Issues resolved across all modules
