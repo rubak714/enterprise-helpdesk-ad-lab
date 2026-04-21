@@ -752,6 +752,12 @@ Then clicked Account Lockout Policy:
 
 ![Account lockout policy settings showing threshold 5 attempts and duration 30 minutes](screenshots/module06-lockout-policy-05.png)
 
+### 🟦 Step 4: Drive mapping GPO
+
+CORP-Drive-Mapping GPO linked to the domain maps department shares automatically at user logon using item-level targeting based on AD group membership. Users only see the shares they have permission to access.
+
+![CORP-Drive-Mapping GPO settings showing drive map preferences configuration](screenshots/module06-drive-mapping-gpo-05.png)
+
 ---
 
 ## 🟦 Issues resolved across all modules
