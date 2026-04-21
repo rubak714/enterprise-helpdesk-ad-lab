@@ -677,6 +677,28 @@ Set-Item WSMan:\localhost\Client\TrustedHosts -Value "DC01.corp.gmbh" -Force
 
 ![CLIENT01 PowerShell showing whoami client01\corpadmin, gpupdate /force completing, Enable-PSRemoting -Force enabling WinRM successfully](screenshots/module05-winrm-enabled-client01-08.png)
 
+### 🟦 Step 6: Remote system diagnostics with Get-SystemInfo.ps1
+
+Back on DC01, ran the system info script remotely against CLIENT01:
+
+```powershell
+.\Get-SystemInfo.ps1 -ComputerName "CLIENT01"
+```
+
+Retrieved CLIENT01 system information without touching the machine: OS Microsoft Windows 11 Pro, Last Boot 04/20/2026 18:54:56, Uptime 1.9 hours, RAM Total 12 GB, RAM Free 5 GB, Domain corp.gmbh. Disk usage showed C: at 19.1% used with 102.3 GB free and D: at 3.3% used with 72.5 GB free. Network showed Ethernet at 10.0.0.4. Top 5 CPU processes listed by usage.
+
+This is a core L1 and L2 skill. When a user reports slowness you pull this remotely in seconds rather than asking them to read out their specs or remoting in manually just to check.
+
+![Get-SystemInfo.ps1 running against CLIENT01 showing OS Windows 11 Pro, RAM 12GB with 5GB free, domain corp.gmbh, disk usage and top CPU processes](screenshots/module05-get-systeminfo-client01-09.png)
+
+Also ran it locally on DC01 itself:
+
+```powershell
+.\Get-SystemInfo.ps1
+```
+
+![Get-SystemInfo.ps1 running locally on DC01 showing server system information](screenshots/module05-get-systeminfo-dc01-07.png)
+
 ---
 
 ## 🟦 Issues resolved across all modules
