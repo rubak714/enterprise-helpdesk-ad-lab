@@ -581,6 +581,28 @@ Started DC01 and CLIENT01 from Azure portal after they were deallocated from the
 
 ![Azure portal showing new public IP being assigned to DC01 after restarting](screenshots/module05-reassgning-public-ip-01.png)
 
+### 🟦 Step 2: Password reset - INC-2026-0001
+
+Sandra Koch from Buchhaltung reported a forgotten password over the weekend. Before touching anything, the script prompted for identity verification showing her name, department and title. Confirmed identity then the script generated a random temporary password, reset her account, forced password change at next logon and wrote an audit entry to `C:\Setup\Logs\PasswordResets\2026-04.csv`.
+
+Password communicated verbally over the phone, never via email or chat.
+
+```powershell
+.\Reset-UserPassword.ps1 -Username "sandra.koch" -TicketNumber "INC-2026-0001"
+```
+
+The output showed `=== IDENTITY VERIFICATION ===` with Sandra Koch, Buchhaltung, Buchhalterin. After confirming identity with YES, the script generated `b028%?Bk6rojKX` as the temporary password, confirmed `Password reset successful for sandra.koch` in green, and logged the audit entry.
+
+![Reset-UserPassword.ps1 running showing identity verification prompt, generated temporary password, password reset successful and audit logged to CSV](screenshots/module05-reset-password-00-04.png)
+
+Then opened the audit log to verify the entry was written:
+
+```powershell
+notepad "C:\Setup\Logs\PasswordResets\$(Get-Date -Format 'yyyy-MM').csv"
+```
+
+![Password reset audit CSV open in Notepad showing timestamped entry for sandra.koch INC-2026-0001](screenshots/module05-audit-password-resets-04.png)
+
 ---
 
 ## 🟦 Issues resolved across all modules
