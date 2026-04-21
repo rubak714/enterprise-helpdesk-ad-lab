@@ -326,7 +326,32 @@ Scrolled down in the log to see the user creation section and the final summary.
 
 ![Log file showing final user creation entries for Extern department and the summary showing 18 OUs, 32 groups, 52 users](screenshots/module2-adstructure-logs2-15.png)
 
-No errors anywhere in the log. Module 2 was completed successfully. And the Issue #5 and Issue #8 were resolved completely.
+### 🟦 Step 9: Fine-grained password policy
+
+The Setup-ADStructure.ps1 script attempted to create PSO-IT-Admins automatically but it failed silently. Created it manually after noticing the Verify-LabSetup.ps1 health check was failing on that item:
+
+```powershell
+New-ADFineGrainedPasswordPolicy -Name "PSO-IT-Admins" `
+    -Precedence 10 `
+    -MinPasswordLength 16 `
+    -PasswordHistoryCount 30 `
+    -ComplexityEnabled $true `
+    -MaxPasswordAge "60.00:00:00" `
+    -LockoutThreshold 3 `
+    -LockoutDuration "00:30:00" `
+    -LockoutObservationWindow "00:30:00"
+
+Add-ADFineGrainedPasswordPolicySubject -Identity "PSO-IT-Admins" `
+    -Subjects "GRP-IT-L2-Admin","GRP-IT-L3-Infrastructure"
+
+Write-Host "PSO-IT-Admins created successfully" -ForegroundColor Green
+```
+
+This creates a stricter password policy specifically for IT administrators: 16 character minimum, 3 lockout attempts maximum, 30 minute lockout duration. Applied to GRP-IT-L2-Admin and GRP-IT-L3-Infrastructure. Regular users keep the Default Domain Policy with 12 characters. Separating privileged account policies from standard users follows BSI IT-Grundschutz recommendations.
+
+![PSO-IT-Admins fine-grained password policy created successfully and applied to GRP-IT-L2-Admin and GRP-IT-L3-Infrastructure](screenshots/module2-pso-created-16.png)
+
+Now, no more errors anywhere. Module 2 was completed successfully. And the Issue #5 and Issue #8 were resolved completely.
 
 ---
 
