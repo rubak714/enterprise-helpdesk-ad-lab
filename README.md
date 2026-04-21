@@ -378,7 +378,7 @@ Joined the domain via the Windows GUI. Right click Start > System > Advanced sys
 
 CLIENT01 restarted automatically after the join succeeded.
 
-### 🟦 Step 3: Confirm domain membership
+### 🟦 Step 3: Confirm domain membership via systeminfo
 
 After restart, RDP'd back into CLIENT01. Ran in PowerShell:
 
@@ -425,7 +425,31 @@ gpresult /r
 
 ![PowerShell on CLIENT01 showing gpupdate /force completing successfully followed by gpresult /r showing Default Domain Policy applied from DC01.corp.gmbh](screenshots/module03-client01-gpresult-04.png)
 
-Module 3 was completed. In this way, CLIENT01 is domain-joined, in the correct OU and receiving Group Policy from DC01.
+### 🟦 Step 6: Run Join-Domain.ps1 script
+
+Tested the automated domain join script to show how a fresh machine would be joined without using the GUI. Copied `Join-Domain.ps1` to `C:\` on CLIENT01 and ran it:
+
+```powershell
+.\Join-Domain.ps1
+```
+
+The script ran through all three steps: set DNS to DC01 at 10.0.0.4, tested DNS resolution confirming `corp.gmbh resolves to 10.0.0.4` in green, then initiated the domain join prompting for admin credentials. Since CLIENT01 was already joined, this demonstrates the script logic working correctly end to end: DNS configuration, verification and domain join initiation all automated.
+
+![Join-Domain.ps1 running on CLIENT01 showing DNS set to 10.0.0.4, DNS OK corp.gmbh resolves confirmed, and joining domain step initiated](screenshots/module03-client01-joining-domain-01.png)
+
+### 🟦 Step 7: Run New-NetworkPrinter.ps1 script
+
+Tested the network printer installation script against the srv01 reserved IP:
+
+```powershell
+.\New-NetworkPrinter.ps1 -PrinterIP "10.0.0.20" -PrinterName "Drucker-Etage1-Farbe"
+```
+
+The script tested connectivity to `10.0.0.20` on port 9100. The connection failed because srv01 does not exist in this lab yet. The script correctly identified this, reported the error with a clear actionable message and exited cleanly without installing a broken printer. This is the right behaviour for a production script: test connectivity first, fail fast with a useful message rather than hanging. In a real environment this would point to an actual network printer and proceed through all four steps: port test, port creation, printer installation and test page prompt.
+
+![New-NetworkPrinter.ps1 showing printer Drucker-Etage1-Farbe at 10.0.0.20, connectivity test failing on port 9100 with clear error message](screenshots/module03-client01-new-networkprinter-05.png)
+
+Therefore, module 3 was completed successfully. In this way, CLIENT01 is domain-joined, in the correct OU and receiving Group Policy from DC01.
 
 ---
 
