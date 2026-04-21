@@ -839,6 +839,22 @@ Then filtered for Event ID 4740:
 
 ![Event Viewer Security log filtered for Event ID 4740 showing account lockout entries with locked account name and caller computer](screenshots/module07-dc01-eventID-4740-05.png)
 
+### 🟦 Step 5: Final lab verification
+
+Ran `Verify-LabSetup.ps1` to confirm everything is working across all modules:
+
+```powershell
+.\Verify-LabSetup.ps1
+```
+
+First run showed 24 checks passing with 3 failures. The DC01 private IP check failed because Azure always reports DHCP origin internally even for statically assigned IPs at the hypervisor level. The IP value `10.0.0.4` was confirmed correct. PSO-IT-Admins was created manually in Module 2. AccountUnlocks log directory was created manually.
+
+![Verify-LabSetup.ps1 first run showing 24 passed and 3 failed with details of each failure](screenshots/module07-dc01-verify-lab-setup-00-06.png)
+
+After fixing the script check and confirming all directories exist, ran again:
+
+![Verify-LabSetup.ps1 second run showing improved results after fixes applied](screenshots/module07-dc01-verify-lab-setup-01-07.png)
+
 ---
 
 ## 🟦 Issues resolved across all modules
