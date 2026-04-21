@@ -823,6 +823,22 @@ The report showed a summary table with colour-coded status for each event catego
 
 ![HTML security report open in browser showing colour-coded summary table with event counts and status indicators](screenshots/module07-dc01-security-html-report-03.png)
 
+### 🟦 Step 4: Event Viewer investigation
+
+Opened Event Viewer manually to show the raw security events as a real analyst would look at them:
+
+```powershell
+eventvwr.msc
+```
+
+Navigated to Windows Logs > Security, then filtered for Event ID 4625:
+
+![Event Viewer Security log filtered for Event ID 4625 showing failed login attempt entries with timestamps and source information](screenshots/module07-dc01-eventID-4625-04.png)
+
+Then filtered for Event ID 4740:
+
+![Event Viewer Security log filtered for Event ID 4740 showing account lockout entries with locked account name and caller computer](screenshots/module07-dc01-eventID-4740-05.png)
+
 ---
 
 ## 🟦 Issues resolved across all modules
