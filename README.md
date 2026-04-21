@@ -861,14 +861,21 @@ After fixing the script check and confirming all directories exist, ran again:
 
 | # | Title | Type | Module |
 |---|---|---|---|
-| 1 | Set up Azure infrastructure for three-VM lab environment | Enhancement | 1 |
-| 2 | Install and configure Active Directory on DC01 | Enhancement | 2 |
-| 3 | Join CLIENT01 to corp.gmbh domain | Enhancement | 3 |
-| 4 | Integrate LINUX01 into Active Directory via realmd and SSSD | Enhancement | 4 |
-| 5 | AD DS promotion fails via PowerShell due to special character encoding | Bug | 2 |
-| 6 | CLIENT01 domain join fails with incorrect credentials error | Bug | 3 |
-| 7 | LINUX01 DNS not applying from resolved.conf alone | Bug | 4 |
-| 8 | Standard_B1s VM size not available in Germany West Central | Bug | 1 |
+| 4 | Set up Azure infrastructure for three-VM lab environment | Enhancement | 1 |
+| 5 | Install and configure Active Directory on DC01 | Enhancement | 2 |
+| 6 | Join CLIENT01 to corp.gmbh domain | Enhancement | 3 |
+| 7 | Integrate LINUX01 into Active Directory via realmd and SSSD | Enhancement | 4 |
+| 8 | AD DS promotion fails via PowerShell due to special character encoding | Bug | 2 |
+| 9 | CLIENT01 domain join fails with incorrect credentials error | Bug | 3 |
+| 10 | LINUX01 DNS not applying from resolved.conf alone | Bug | 4 |
+| 11 | Standard_B1s VM size not available in Germany West Central | Bug | 1 |
+| 13 | Run helpdesk ticket simulations against live AD users | Enhancement | 5 |
+| 14 | Configure Group Policy for password policy and security baseline | Enhancement | 6 |
+| 15 | Implement security event monitoring with PowerShell and Event Viewer | Enhancement | 7 |
+| 16 | Run final lab verification health check | Enhancement | 7 |
+| 17 | Account unlock simulation fails due to badPwdCount attribute ownership | Bug | 5 |
+| 18 | WinRM not enabled on CLIENT01 for remote diagnostics | Bug | 5 |
+| 19 | Fine-grained password policy PSO-IT-Admins not created by structure script | Bug | 2 |
 
 ---
 
@@ -880,9 +887,9 @@ After fixing the script check and confirming all directories exist, ran again:
 | Module 2: Active Directory, DNS, DHCP | Done |
 | Module 3: Join CLIENT01 to domain | Done |
 | Module 4: Linux integration via realmd/SSSD and Samba | Done |
-| Module 5: Helpdesk ticket simulations | Next session |
-| Module 6: Group Policy configuration | Next session |
-| Module 7: Security event monitoring | Next session |
+| Module 5: Helpdesk ticket simulations | Done |
+| Module 6: Group Policy configuration | Done |
+| Module 7: Security event monitoring | Done |
 
 ---
 
