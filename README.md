@@ -701,6 +701,26 @@ Also ran it locally on DC01 itself:
 
 ---
 
+## ☁️ Module 6: Group Policy Configuration
+
+### 🟦 Step 1: Run Setup-GPO.ps1
+
+Created `Setup-GPO.ps1` in `C:\CorpLab\` on DC01 and ran it:
+
+```powershell
+.\Setup-GPO.ps1
+```
+
+The script created and configured four Group Policy Objects. Output showed each step completing.
+
+![Setup-GPO.ps1 output first part showing GPO creation starting](screenshots/module06-gpo-script-output-00.png)
+
+![Setup-GPO.ps1 output second part showing drive mapping and security baseline GPOs configured](screenshots/module06-gpo-script-output-01.png)
+
+![Setup-GPO.ps1 output third part showing desktop policy and final summary](screenshots/module06-gpo-script-output-02.png)
+
+---
+
 ## 🟦 Issues resolved across all modules
 
 | # | Title | Type | Module |
