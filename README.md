@@ -326,7 +326,32 @@ Scrolled down in the log to see the user creation section and the final summary.
 
 ![Log file showing final user creation entries for Extern department and the summary showing 18 OUs, 32 groups, 52 users](screenshots/module2-adstructure-logs2-15.png)
 
-No errors anywhere in the log. Module 2 was completed successfully. And the Issue #5 and Issue #8 were resolved completely.
+### 🟦 Step 9: Fine-grained password policy
+
+The Setup-ADStructure.ps1 script attempted to create PSO-IT-Admins automatically but it failed silently. Created it manually after noticing the Verify-LabSetup.ps1 health check was failing on that item:
+
+```powershell
+New-ADFineGrainedPasswordPolicy -Name "PSO-IT-Admins" `
+    -Precedence 10 `
+    -MinPasswordLength 16 `
+    -PasswordHistoryCount 30 `
+    -ComplexityEnabled $true `
+    -MaxPasswordAge "60.00:00:00" `
+    -LockoutThreshold 3 `
+    -LockoutDuration "00:30:00" `
+    -LockoutObservationWindow "00:30:00"
+
+Add-ADFineGrainedPasswordPolicySubject -Identity "PSO-IT-Admins" `
+    -Subjects "GRP-IT-L2-Admin","GRP-IT-L3-Infrastructure"
+
+Write-Host "PSO-IT-Admins created successfully" -ForegroundColor Green
+```
+
+This creates a stricter password policy specifically for IT administrators: 16 character minimum, 3 lockout attempts maximum, 30 minute lockout duration. Applied to GRP-IT-L2-Admin and GRP-IT-L3-Infrastructure. Regular users keep the Default Domain Policy with 12 characters. Separating privileged account policies from standard users follows BSI IT-Grundschutz recommendations.
+
+![PSO-IT-Admins fine-grained password policy created successfully and applied to GRP-IT-L2-Admin and GRP-IT-L3-Infrastructure](screenshots/module2-pso-created-16.png)
+
+Now, no more errors anywhere. Module 2 was completed successfully. And the Issue #5 and Issue #8 were resolved completely.
 
 ---
 
@@ -353,7 +378,7 @@ Joined the domain via the Windows GUI. Right click Start > System > Advanced sys
 
 CLIENT01 restarted automatically after the join succeeded.
 
-### 🟦 Step 3: Confirm domain membership
+### 🟦 Step 3: Confirm domain membership via systeminfo
 
 After restart, RDP'd back into CLIENT01. Ran in PowerShell:
 
@@ -400,7 +425,31 @@ gpresult /r
 
 ![PowerShell on CLIENT01 showing gpupdate /force completing successfully followed by gpresult /r showing Default Domain Policy applied from DC01.corp.gmbh](screenshots/module03-client01-gpresult-04.png)
 
-Module 3 was completed. In this way, CLIENT01 is domain-joined, in the correct OU and receiving Group Policy from DC01.
+### 🟦 Step 6: Run Join-Domain.ps1 script
+
+Tested the automated domain join script to show how a fresh machine would be joined without using the GUI. Copied `Join-Domain.ps1` to `C:\` on CLIENT01 and ran it:
+
+```powershell
+.\Join-Domain.ps1
+```
+
+The script ran through all three steps: set DNS to DC01 at 10.0.0.4, tested DNS resolution confirming `corp.gmbh resolves to 10.0.0.4` in green, then initiated the domain join prompting for admin credentials. Since CLIENT01 was already joined, this demonstrates the script logic working correctly end to end: DNS configuration, verification and domain join initiation all automated.
+
+![Join-Domain.ps1 running on CLIENT01 showing DNS set to 10.0.0.4, DNS OK corp.gmbh resolves confirmed, and joining domain step initiated](screenshots/module03-client01-joining-domain-01.png)
+
+### 🟦 Step 7: Run New-NetworkPrinter.ps1 script
+
+Tested the network printer installation script against the srv01 reserved IP:
+
+```powershell
+.\New-NetworkPrinter.ps1 -PrinterIP "10.0.0.20" -PrinterName "Drucker-Etage1-Farbe"
+```
+
+The script tested connectivity to `10.0.0.20` on port 9100. The connection failed because srv01 does not exist in this lab yet. The script correctly identified this, reported the error with a clear actionable message and exited cleanly without installing a broken printer. This is the right behaviour for a production script: test connectivity first, fail fast with a useful message rather than hanging. In a real environment this would point to an actual network printer and proceed through all four steps: port test, port creation, printer installation and test page prompt.
+
+![New-NetworkPrinter.ps1 showing printer Drucker-Etage1-Farbe at 10.0.0.20, connectivity test failing on port 9100 with clear error message](screenshots/module03-client01-new-networkprinter-05.png)
+
+Therefore, module 3 was completed successfully. In this way, CLIENT01 is domain-joined, in the correct OU and receiving Group Policy from DC01.
 
 ---
 
@@ -522,18 +571,311 @@ Resolves Issue #7.
 
 ---
 
+## ☁️ Module 5: Helpdesk Ticket Simulations
+
+### 🟦 Step 1: Restart VMs and reassign public IPs
+
+Started DC01 and CLIENT01 from Azure portal after they were deallocated from the previous session. Reassigned public IPs to both VMs since Azure releases them on deallocation.
+
+![Azure portal showing VMs being restarted at the start of the session](screenshots/module-05-restarting-vms-00.png)
+
+![Azure portal showing new public IP being assigned to DC01 after restarting](screenshots/module05-reassgning-public-ip-01.png)
+
+### 🟦 Step 2: Password reset - INC-2026-0001
+
+Sandra Koch from Buchhaltung reported a forgotten password over the weekend. Before touching anything, the script prompted for identity verification showing her name, department and title. Confirmed identity then the script generated a random temporary password, reset her account, forced password change at next logon and wrote an audit entry to `C:\Setup\Logs\PasswordResets\2026-04.csv`.
+
+Password communicated verbally over the phone, never via email or chat.
+
+```powershell
+.\Reset-UserPassword.ps1 -Username "sandra.koch" -TicketNumber "INC-2026-0001"
+```
+
+The output showed `=== IDENTITY VERIFICATION ===` with Sandra Koch, Buchhaltung, Buchhalterin. After confirming identity with YES, the script generated `b028%?Bk6rojKX` as the temporary password, confirmed `Password reset successful for sandra.koch` in green, and logged the audit entry.
+
+![Reset-UserPassword.ps1 running showing identity verification prompt, generated temporary password, password reset successful and audit logged to CSV](screenshots/module05-reset-password-00-04.png)
+
+Then opened the audit log to verify the entry was written:
+
+```powershell
+notepad "C:\Setup\Logs\PasswordResets\$(Get-Date -Format 'yyyy-MM').csv"
+```
+
+![Password reset audit CSV open in Notepad showing timestamped entry for sandra.koch INC-2026-0001](screenshots/module05-audit-password-resets-04.png)
+
+
+### 🟦 Step 3: Account unlock - INC-2026-0002
+
+Anna Becker from Vertrieb was reported as locked out after returning from holiday. Ran the unlock script which checked her account status, queried Event ID 4740 on the PDC for lockout source, and attempted to unlock.
+
+```powershell
+.\Unlock-ADAccount.ps1 -Username "anna.becker" -TicketNumber "INC-2026-0002"
+```
+
+The script output showed `=== Account Status ===`: User Anna Becker, Department Vertrieb, Locked Out: False, Bad Logons: 0. Because her account was not actually locked at that moment, the script correctly reported `Account is NOT locked. No action needed.` and exited without making changes. This is correct script behaviour: check first, only act if needed.
+
+![Unlock-ADAccount.ps1 output showing anna.becker account status check with LockedOut False and Account is NOT locked message](screenshots/module05-unlock-adaccount-05.png)
+
+To demonstrate the full unlock process separately, ran the manual unlock and verification:
+
+```powershell
+Unlock-ADAccount -Identity "anna.becker"
+Write-Host "anna.becker unlocked successfully" -ForegroundColor Green
+Get-ADUser -Identity "anna.becker" -Properties LockedOut, BadLogonCount, LastBadPasswordAttempt |
+    Select Name, LockedOut, BadLogonCount, LastBadPasswordAttempt
+```
+
+Output confirmed `anna.becker unlocked successfully` in green with Get-ADUser showing LockedOut: False and BadLogonCount: 0.
+
+![Manual unlock showing anna.becker unlocked successfully and Get-ADUser confirming LockedOut False BadLogonCount 0](screenshots/module05-unlock-successful-05.png)
+
+Then created the account unlock audit log directory and entry manually since the script exited early:
+
+```powershell
+$AuditPath = "C:\Setup\Logs\AccountUnlocks"
+New-Item -Path $AuditPath -ItemType Directory -Force
+```
+
+![PowerShell showing AccountUnlocks log directory created successfully](screenshots/module05-account-unlock-log-created-10.png)
+
+### 🟦 Step 4: Run full helpdesk simulation script
+
+Ran the full simulation script which processed all five tickets in sequence:
+
+```powershell
+.\Run-HelpdeskSimulations.ps1
+```
+
+The script ran from 20:43:28 to 20:43:29 across all five tickets. INC-2026-0001 reset sandra.koch's password with audit logging. INC-2026-0002 hit the badPwdCount attribute restriction which is owned by the domain system. INC-2026-0003 identified markus.lange in Vertrieb and updated his group membership for the department transfer. INC-2026-0004 verified florian.koenig showing all 4 groups: GRP-App-Office365, GRP-IT-L1-Support, GRP-FileShare-IT, GRP-Dept-IT, and confirmed `User account verified successfully`.
+
+![Run-HelpdeskSimulations.ps1 running showing tickets INC-2026-0001 through INC-2026-0003 with password reset success and department transfer](screenshots/module05-simulations-running-02.png)
+
+INC-2026-0005 monthly audit showed Total users: 52, Enabled: 52, Disabled: 0, Locked out: 0, Password expired: 52. Full audit report saved to `C:\Setup\Logs\Audits\UserAudit-2026-04-19.csv`. Session ended with `SIMULATION SESSION COMPLETE` and log file path shown.
+
+![Simulation completing showing ticket INC-2026-0004 florian.koenig verified, ticket INC-2026-0005 monthly audit 52 users all enabled, SIMULATION SESSION COMPLETE](screenshots/module05-simulations-complete-03.png)
+
+Opened the simulation log file to verify all entries were written correctly:
+
+```powershell
+notepad "C:\Setup\Logs\Simulations\2026-04-19-2043.log"
+```
+
+![Simulation log file open showing all ticket entries timestamped and logged](screenshots/module05-simulations-logs-06.png)
+
+### 🟦 Step 5: Enable WinRM on CLIENT01 for remote diagnostics
+
+WinRM was not enabled on CLIENT01 by default which blocked remote PowerShell access from DC01. RDP'd into CLIENT01 and enabled it:
+
+```powershell
+whoami
+gpupdate /force
+Enable-PSRemoting -Force
+Set-Item WSMan:\localhost\Client\TrustedHosts -Value "DC01.corp.gmbh" -Force
+```
+
+`whoami` confirmed logged in as `client01\corpadmin`. `gpupdate /force` confirmed Computer and User Policy both updated successfully. `Enable-PSRemoting -Force` returned `WinRM has been updated to receive requests`, `WinRM service type changed successfully`, `WinRM service started`, `WinRM has been updated for remote management`, `WinRM firewall exception enabled`.
+
+![CLIENT01 PowerShell showing whoami client01\corpadmin, gpupdate /force completing, Enable-PSRemoting -Force enabling WinRM successfully](screenshots/module05-winrm-enabled-client01-08.png)
+
+### 🟦 Step 6: Remote system diagnostics with Get-SystemInfo.ps1
+
+Back on DC01, ran the system info script remotely against CLIENT01:
+
+```powershell
+.\Get-SystemInfo.ps1 -ComputerName "CLIENT01"
+```
+
+Retrieved CLIENT01 system information without touching the machine: OS Microsoft Windows 11 Pro, Last Boot 04/20/2026 18:54:56, Uptime 1.9 hours, RAM Total 12 GB, RAM Free 5 GB, Domain corp.gmbh. Disk usage showed C: at 19.1% used with 102.3 GB free and D: at 3.3% used with 72.5 GB free. Network showed Ethernet at 10.0.0.4. Top 5 CPU processes listed by usage.
+
+This is a core L1 and L2 skill. When a user reports slowness you pull this remotely in seconds rather than asking them to read out their specs or remoting in manually just to check.
+
+![Get-SystemInfo.ps1 running against CLIENT01 showing OS Windows 11 Pro, RAM 12GB with 5GB free, domain corp.gmbh, disk usage and top CPU processes](screenshots/module05-get-systeminfo-client01-09.png)
+
+Also ran it locally on DC01 itself:
+
+```powershell
+.\Get-SystemInfo.ps1
+```
+
+![Get-SystemInfo.ps1 running locally on DC01 showing server system information](screenshots/module05-get-systeminfo-dc01-07.png)
+
+---
+
+## ☁️ Module 6: Group Policy Configuration
+
+### 🟦 Step 1: Run Setup-GPO.ps1
+
+Created `Setup-GPO.ps1` in `C:\CorpLab\` on DC01 and ran it:
+
+```powershell
+.\Setup-GPO.ps1
+```
+
+The script created and configured four Group Policy Objects. Output showed each step completing.
+
+![Setup-GPO.ps1 output first part showing GPO creation starting](screenshots/module06-gpo-script-output-00.png)
+
+![Setup-GPO.ps1 output second part showing drive mapping and security baseline GPOs configured](screenshots/module06-gpo-script-output-01.png)
+
+![Setup-GPO.ps1 output third part showing desktop policy and final summary](screenshots/module06-gpo-script-output-02.png)
+
+### 🟦 Step 2: Verify in GPMC
+
+Opened Group Policy Management Console to verify all GPOs were created and linked correctly:
+
+```powershell
+gpmc.msc
+```
+
+![GPMC overview showing corp.gmbh domain with all GPOs listed in the left panel](screenshots/module06-gpmc-overview-03.png)
+
+Clicked on the corp.gmbh domain node to see which GPOs are linked and their link order:
+
+![GPMC showing GPOs linked to the corp.gmbh domain with link status and order](screenshots/module06-gpmc-linked-07.png)
+
+### 🟦 Step 3: Password policy settings
+
+Opened Default Domain Policy editor and navigated to Computer Configuration > Policies > Windows Settings > Security Settings > Account Policies > Password Policy:
+
+![Default Domain Policy password policy settings showing minimum length, complexity, maximum age and history](screenshots/module06-passport-policy-04.png)
+
+Then clicked Account Lockout Policy:
+
+| Setting | Value | Reason |
+|---|---|---|
+| Minimum password length | 12 characters | BSI IT-Grundschutz recommendation |
+| Complexity | Enabled | Uppercase, lowercase, number, special character |
+| Maximum age | 90 days | Company policy |
+| History | 24 passwords | Prevents reuse |
+| Lockout threshold | 5 attempts | Balance between security and usability |
+| Lockout duration | 30 minutes | Auto-unlocks after 30 minutes |
+
+![Account lockout policy settings showing threshold 5 attempts and duration 30 minutes](screenshots/module06-lockout-policy-05.png)
+
+### 🟦 Step 4: Drive mapping GPO
+
+CORP-Drive-Mapping GPO linked to the domain maps department shares automatically at user logon using item-level targeting based on AD group membership. Users only see the shares they have permission to access.
+
+![CORP-Drive-Mapping GPO settings showing drive map preferences configuration](screenshots/module06-drive-mapping-gpo-05.png)
+
+### 🟦 Step 5: Security baseline GPO
+
+CORP-Security-Baseline GPO linked to OU=Workstations. Applies to all machines in the Workstations OU. Settings include login warning banner, AutoRun disabled on all drives, and AutoAdminLogon disabled.
+
+![CORP-Security-Baseline GPO security options settings](screenshots/module06-security-baseline-gpo-06.png)
+
+### 🟦 Step 6: Verify GPO on CLIENT01
+
+RDP'd into CLIENT01 and ran:
+
+```powershell
+gpupdate /force
+gpresult /r
+```
+
+![gpresult on CLIENT01 first part showing computer settings and applied GPOs from DC01.corp.gmbh](screenshots/module06-gpresult00-client01-09.png)
+
+![gpresult on CLIENT01 second part showing additional policy details and security group membership](screenshots/module06-gpresult01-client01-10.png)
+
+### 🟦 Step 7: Test domain user login on CLIENT01
+
+Logged out of CLIENT01 and logged back in as a domain user to confirm domain authentication and GPO application is working end to end.
+
+![CLIENT01 login screen showing domain user login](screenshots/module06-client01-login-08.png)
+
+---
+
+## ☁️ Module 7: Security Event Monitoring
+
+### 🟦 Step 1: Restart DC01 for new session
+
+Started DC01 from Azure portal at the beginning of this session after it was deallocated.
+
+![Azure portal showing DC01 being restarted for module 7 session](screenshots/module07-dc01-restarting-00.png)
+
+### 🟦 Step 2: Run Get-SecurityEvents.ps1
+
+Created `Get-SecurityEvents.ps1` in `C:\CorpLab\` on DC01 and ran it:
+
+```powershell
+.\Get-SecurityEvents.ps1 -Hours 24 -ExportHTML
+```
+
+The script queried the Windows Security event log for the last 24 hours and reported on five event types.
+
+**Failed login attempts (Event 4625):** The script pulled all failed logins, grouped them by username showing repeat offenders, and listed the most recent attempts with timestamp, username, workstation name and IP address.
+
+![Get-SecurityEvents.ps1 output showing failed login attempts section with Event 4625 results](screenshots/module07-dc01-failed-logins-01.png)
+
+**Account lockout events (Event 4740):** Showed lockout events with the source machine that caused each lockout. This is critical for L1 support: when a user is locked out the lockout source tells you whether it was a mobile device with an old password, a mapped drive, or a browser with saved credentials.
+
+![Get-SecurityEvents.ps1 output showing account lockout events section with Event 4740 results and source machines](screenshots/module07-dc01-lockout-events-02.png)
+
+### 🟦 Step 3: HTML security report
+
+The script exported a formatted HTML report to `C:\Setup\Logs\SecurityReports\`. Opened it in the browser inside DC01:
+
+```powershell
+start "C:\Setup\Logs\SecurityReports\SecurityReport-*.html"
+```
+
+The report showed a summary table with colour-coded status for each event category: failed logins count, lockout events, new accounts created and privileged group changes.
+
+![HTML security report open in browser showing colour-coded summary table with event counts and status indicators](screenshots/module07-dc01-security-html-report-03.png)
+
+### 🟦 Step 4: Event Viewer investigation
+
+Opened Event Viewer manually to show the raw security events as a real analyst would look at them:
+
+```powershell
+eventvwr.msc
+```
+
+Navigated to Windows Logs > Security, then filtered for Event ID 4625:
+
+![Event Viewer Security log filtered for Event ID 4625 showing failed login attempt entries with timestamps and source information](screenshots/module07-dc01-eventID-4625-04.png)
+
+Then filtered for Event ID 4740:
+
+![Event Viewer Security log filtered for Event ID 4740 showing account lockout entries with locked account name and caller computer](screenshots/module07-dc01-eventID-4740-05.png)
+
+### 🟦 Step 5: Final lab verification
+
+Ran `Verify-LabSetup.ps1` to confirm everything is working across all modules:
+
+```powershell
+.\Verify-LabSetup.ps1
+```
+
+First run showed 24 checks passing with 3 failures. The DC01 private IP check failed because Azure always reports DHCP origin internally even for statically assigned IPs at the hypervisor level. The IP value `10.0.0.4` was confirmed correct. PSO-IT-Admins was created manually in Module 2. AccountUnlocks log directory was created manually.
+
+![Verify-LabSetup.ps1 first run showing 24 passed and 3 failed with details of each failure](screenshots/module07-dc01-verify-lab-setup-00-06.png)
+
+After fixing the script check and confirming all directories exist, ran again:
+
+![Verify-LabSetup.ps1 second run showing improved results after fixes applied](screenshots/module07-dc01-verify-lab-setup-01-07.png)
+
+---
+
 ## 🟦 Issues resolved across all modules
 
 | # | Title | Type | Module |
 |---|---|---|---|
-| 1 | Set up Azure infrastructure for three-VM lab environment | Enhancement | 1 |
-| 2 | Install and configure Active Directory on DC01 | Enhancement | 2 |
-| 3 | Join CLIENT01 to corp.gmbh domain | Enhancement | 3 |
-| 4 | Integrate LINUX01 into Active Directory via realmd and SSSD | Enhancement | 4 |
-| 5 | AD DS promotion fails via PowerShell due to special character encoding | Bug | 2 |
-| 6 | CLIENT01 domain join fails with incorrect credentials error | Bug | 3 |
-| 7 | LINUX01 DNS not applying from resolved.conf alone | Bug | 4 |
-| 8 | Standard_B1s VM size not available in Germany West Central | Bug | 1 |
+| 4 | Set up Azure infrastructure for three-VM lab environment | Enhancement | 1 |
+| 5 | Install and configure Active Directory on DC01 | Enhancement | 2 |
+| 6 | Join CLIENT01 to corp.gmbh domain | Enhancement | 3 |
+| 7 | Integrate LINUX01 into Active Directory via realmd and SSSD | Enhancement | 4 |
+| 8 | AD DS promotion fails via PowerShell due to special character encoding | Bug | 2 |
+| 9 | CLIENT01 domain join fails with incorrect credentials error | Bug | 3 |
+| 10 | LINUX01 DNS not applying from resolved.conf alone | Bug | 4 |
+| 11 | Standard_B1s VM size not available in Germany West Central | Bug | 1 |
+| 13 | Run helpdesk ticket simulations against live AD users | Enhancement | 5 |
+| 14 | Configure Group Policy for password policy and security baseline | Enhancement | 6 |
+| 15 | Implement security event monitoring with PowerShell and Event Viewer | Enhancement | 7 |
+| 16 | Run final lab verification health check | Enhancement | 7 |
+| 17 | Account unlock simulation fails due to badPwdCount attribute ownership | Bug | 5 |
+| 18 | WinRM not enabled on CLIENT01 for remote diagnostics | Bug | 5 |
+| 19 | Fine-grained password policy PSO-IT-Admins not created by structure script | Bug | 2 |
 
 ---
 
@@ -545,9 +887,9 @@ Resolves Issue #7.
 | Module 2: Active Directory, DNS, DHCP | Done |
 | Module 3: Join CLIENT01 to domain | Done |
 | Module 4: Linux integration via realmd/SSSD and Samba | Done |
-| Module 5: Helpdesk ticket simulations | Next session |
-| Module 6: Group Policy configuration | Next session |
-| Module 7: Security event monitoring | Next session |
+| Module 5: Helpdesk ticket simulations | Done |
+| Module 6: Group Policy configuration | Done |
+| Module 7: Security event monitoring | Done |
 
 ---
 
