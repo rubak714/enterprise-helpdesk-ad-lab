@@ -776,6 +776,13 @@ gpresult /r
 ![gpresult on CLIENT01 first part showing computer settings and applied GPOs from DC01.corp.gmbh](screenshots/module06-gpresult00-client01-09.png)
 
 ![gpresult on CLIENT01 second part showing additional policy details and security group membership](screenshots/module06-gpresult01-client01-10.png)
+
+### 🟦 Step 7: Test domain user login on CLIENT01
+
+Logged out of CLIENT01 and logged back in as a domain user to confirm domain authentication and GPO application is working end to end.
+
+![CLIENT01 login screen showing domain user login](screenshots/module06-client01-login-08.png)
+
 ---
 
 ## 🟦 Issues resolved across all modules
