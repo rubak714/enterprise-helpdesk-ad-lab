@@ -603,6 +603,40 @@ notepad "C:\Setup\Logs\PasswordResets\$(Get-Date -Format 'yyyy-MM').csv"
 
 ![Password reset audit CSV open in Notepad showing timestamped entry for sandra.koch INC-2026-0001](screenshots/module05-audit-password-resets-04.png)
 
+
+### 🟦 Step 3: Account unlock - INC-2026-0002
+
+Anna Becker from Vertrieb was reported as locked out after returning from holiday. Ran the unlock script which checked her account status, queried Event ID 4740 on the PDC for lockout source, and attempted to unlock.
+
+```powershell
+.\Unlock-ADAccount.ps1 -Username "anna.becker" -TicketNumber "INC-2026-0002"
+```
+
+The script output showed `=== Account Status ===`: User Anna Becker, Department Vertrieb, Locked Out: False, Bad Logons: 0. Because her account was not actually locked at that moment, the script correctly reported `Account is NOT locked. No action needed.` and exited without making changes. This is correct script behaviour: check first, only act if needed.
+
+![Unlock-ADAccount.ps1 output showing anna.becker account status check with LockedOut False and Account is NOT locked message](screenshots/module05-unlock-adaccount-05.png)
+
+To demonstrate the full unlock process separately, ran the manual unlock and verification:
+
+```powershell
+Unlock-ADAccount -Identity "anna.becker"
+Write-Host "anna.becker unlocked successfully" -ForegroundColor Green
+Get-ADUser -Identity "anna.becker" -Properties LockedOut, BadLogonCount, LastBadPasswordAttempt |
+    Select Name, LockedOut, BadLogonCount, LastBadPasswordAttempt
+```
+
+Output confirmed `anna.becker unlocked successfully` in green with Get-ADUser showing LockedOut: False and BadLogonCount: 0.
+
+![Manual unlock showing anna.becker unlocked successfully and Get-ADUser confirming LockedOut False BadLogonCount 0](screenshots/module05-unlock-successful-05.png)
+
+Then created the account unlock audit log directory and entry manually since the script exited early:
+
+```powershell
+$AuditPath = "C:\Setup\Logs\AccountUnlocks"
+New-Item -Path $AuditPath -ItemType Directory -Force
+```
+
+![PowerShell showing AccountUnlocks log directory created successfully](screenshots/module05-account-unlock-log-created-10.png)
 ---
 
 ## 🟦 Issues resolved across all modules
