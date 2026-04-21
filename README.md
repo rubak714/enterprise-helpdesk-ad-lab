@@ -793,6 +793,24 @@ Started DC01 from Azure portal at the beginning of this session after it was dea
 
 ![Azure portal showing DC01 being restarted for module 7 session](screenshots/module07-dc01-restarting-00.png)
 
+### 🟦 Step 2: Run Get-SecurityEvents.ps1
+
+Created `Get-SecurityEvents.ps1` in `C:\CorpLab\` on DC01 and ran it:
+
+```powershell
+.\Get-SecurityEvents.ps1 -Hours 24 -ExportHTML
+```
+
+The script queried the Windows Security event log for the last 24 hours and reported on five event types.
+
+**Failed login attempts (Event 4625):** The script pulled all failed logins, grouped them by username showing repeat offenders, and listed the most recent attempts with timestamp, username, workstation name and IP address.
+
+![Get-SecurityEvents.ps1 output showing failed login attempts section with Event 4625 results](screenshots/module07-dc01-failed-logins-01.png)
+
+**Account lockout events (Event 4740):** Showed lockout events with the source machine that caused each lockout. This is critical for L1 support: when a user is locked out the lockout source tells you whether it was a mobile device with an old password, a mapped drive, or a browser with saved credentials.
+
+![Get-SecurityEvents.ps1 output showing account lockout events section with Event 4740 results and source machines](screenshots/module07-dc01-lockout-events-02.png)
+
 ---
 
 ## 🟦 Issues resolved across all modules
