@@ -637,6 +637,31 @@ New-Item -Path $AuditPath -ItemType Directory -Force
 ```
 
 ![PowerShell showing AccountUnlocks log directory created successfully](screenshots/module05-account-unlock-log-created-10.png)
+
+### 🟦 Step 4: Run full helpdesk simulation script
+
+Ran the full simulation script which processed all five tickets in sequence:
+
+```powershell
+.\Run-HelpdeskSimulations.ps1
+```
+
+The script ran from 20:43:28 to 20:43:29 across all five tickets. INC-2026-0001 reset sandra.koch's password with audit logging. INC-2026-0002 hit the badPwdCount attribute restriction which is owned by the domain system. INC-2026-0003 identified markus.lange in Vertrieb and updated his group membership for the department transfer. INC-2026-0004 verified florian.koenig showing all 4 groups: GRP-App-Office365, GRP-IT-L1-Support, GRP-FileShare-IT, GRP-Dept-IT, and confirmed `User account verified successfully`.
+
+![Run-HelpdeskSimulations.ps1 running showing tickets INC-2026-0001 through INC-2026-0003 with password reset success and department transfer](screenshots/module05-simulations-running-02.png)
+
+INC-2026-0005 monthly audit showed Total users: 52, Enabled: 52, Disabled: 0, Locked out: 0, Password expired: 52. Full audit report saved to `C:\Setup\Logs\Audits\UserAudit-2026-04-19.csv`. Session ended with `SIMULATION SESSION COMPLETE` and log file path shown.
+
+![Simulation completing showing ticket INC-2026-0004 florian.koenig verified, ticket INC-2026-0005 monthly audit 52 users all enabled, SIMULATION SESSION COMPLETE](screenshots/module05-simulations-complete-03.png)
+
+Opened the simulation log file to verify all entries were written correctly:
+
+```powershell
+notepad "C:\Setup\Logs\Simulations\2026-04-19-2043.log"
+```
+
+![Simulation log file open showing all ticket entries timestamped and logged](screenshots/module05-simulations-logs-06.png)
+
 ---
 
 ## 🟦 Issues resolved across all modules
