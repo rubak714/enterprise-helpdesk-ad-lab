@@ -133,6 +133,9 @@ Installs the DHCP role, authorizes it in AD, creates the CorpNet-LAN scope for r
 **Setup-GPO.ps1**
 Creates CORP-Drive-Mapping GPO linked to the domain, CORP-Security-Baseline GPO linked to OU=Workstations with login banner and AutoRun disabled, and CORP-Desktop-Policy with screen lock after 10 minutes. Password policy applied via secedit.
 
+**Reset-UserPassword.ps1**
+L1 helpdesk script. Takes a username and ticket number. Shows identity verification prompt before doing anything. Generates a random temporary password, resets the account, forces change at next logon and writes a timestamped audit entry to a monthly CSV file. Follows DSGVO practice of never sending passwords via email.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
