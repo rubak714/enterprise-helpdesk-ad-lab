@@ -139,6 +139,9 @@ L1 helpdesk script. Takes a username and ticket number. Shows identity verificat
 **Unlock-ADAccount.ps1**
 L1 helpdesk script. Checks account status, queries Event ID 4740 on the PDC to find the lockout source machine, unlocks the account, and writes an audit entry. The lockout source is the key piece of information for preventing repeat lockouts.
 
+**Get-SystemInfo.ps1**
+Remote diagnostics script. Run with -ComputerName to pull OS, uptime, RAM, disk usage and top CPU processes from any domain machine without RDP'ing in. Useful for first-pass triage when a user reports slowness.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
