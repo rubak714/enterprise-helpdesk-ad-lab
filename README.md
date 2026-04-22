@@ -100,6 +100,9 @@ Created the Azure resource group, virtual network and all three VMs. Set static 
 **Module 2: Active Directory, DNS and DHCP**
 Promoted DC01 to domain controller with domain corp.gmbh. Ran Setup-DNS.ps1 and Setup-DHCP.ps1 to configure services. Ran Setup-ADStructure.ps1 which built 18 OUs with German department names, 32 security groups and 52 user accounts across 8 departments in one go. Created a fine-grained password policy for IT administrators separately after the script failed silently.
 
+**Module 3: Joining CLIENT01 to the domain**
+Pointed DNS to DC01, joined corp.gmbh domain via System Properties. Moved CLIENT01 to OU=Workstations so GPOs apply correctly. Verified with gpresult showing Default Domain Policy applying from DC01.corp.gmbh. Also tested Join-Domain.ps1 and New-NetworkPrinter.ps1 scripts on CLIENT01.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
