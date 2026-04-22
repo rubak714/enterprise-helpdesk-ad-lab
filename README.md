@@ -112,6 +112,11 @@ Ran Reset-UserPassword.ps1 and Unlock-ADAccount.ps1 as standalone scripts agains
 **Module 6: Group Policy**
 Ran Setup-GPO.ps1 which created four GPOs. Configured password and lockout policy in Default Domain Policy aligned to BSI IT-Grundschutz. Verified everything in GPMC. Confirmed policies applying on CLIENT01 with gpresult and tested a domain user login.
 
+**Module 7: Security monitoring and final verification**
+Ran Get-SecurityEvents.ps1 against the live security event log covering failed logins, lockouts, new accounts and group changes. Exported an HTML report. Opened Event Viewer manually and filtered for Event IDs 4625 and 4740. Ran Verify-LabSetup.ps1 as a final health check across all modules.
+
+---
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
