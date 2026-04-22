@@ -159,6 +159,9 @@ Automates the domain join process on a new workstation. Sets DNS to DC01, verifi
 **join-ad-linux.sh**
 Joins Ubuntu to the corp.gmbh Active Directory domain. Syncs the clock, sets DNS, installs realmd/SSSD packages, discovers the domain, joins it and configures SSSD with simplified usernames. Sets up sudo access for IT department AD groups.
 
+**linux-user-audit.sh**
+Audits users on the Linux server. Shows local users with login shells, AD users visible via SSSD, sudo access rules, recent failed SSH logins and who is currently logged in.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
