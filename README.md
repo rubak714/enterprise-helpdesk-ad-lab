@@ -148,6 +148,9 @@ Queries the security event log for the last N hours. Covers failed logins (4625)
 **Run-HelpdeskSimulations.ps1**
 Processes 5 realistic helpdesk tickets against the live AD environment in sequence. Each ticket logs to a timestamped simulation log. Covers the most common L1 scenarios: password reset, account unlock, department transfer, new user verification and monthly compliance audit.
 
+**Verify-LabSetup.ps1**
+Health check script that runs after every session. Tests AD, DNS, DHCP, network connectivity, GPO existence and audit log directories. Shows PASS or FAIL per check. Good for catching configuration drift between sessions.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
