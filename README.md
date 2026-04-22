@@ -109,6 +109,9 @@ SSH'd into LINUX01 and ran join-ad-linux.sh which synced the clock, installed re
 **Module 5: Helpdesk ticket simulations**
 Ran Reset-UserPassword.ps1 and Unlock-ADAccount.ps1 as standalone scripts against real users. Then ran Run-HelpdeskSimulations.ps1 which processed 5 tickets end to end: password reset with audit logging, account unlock, department transfer, new user verification and monthly compliance audit. Enabled WinRM on CLIENT01 and used Get-SystemInfo.ps1 to pull system diagnostics remotely from DC01.
 
+**Module 6: Group Policy**
+Ran Setup-GPO.ps1 which created four GPOs. Configured password and lockout policy in Default Domain Policy aligned to BSI IT-Grundschutz. Verified everything in GPMC. Confirmed policies applying on CLIENT01 with gpresult and tested a domain user login.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
