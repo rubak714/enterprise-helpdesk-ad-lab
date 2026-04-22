@@ -154,6 +154,11 @@ Health check script that runs after every session. Tests AD, DNS, DHCP, network 
 **Join-Domain.ps1** *(run on CLIENT01)*
 Automates the domain join process on a new workstation. Sets DNS to DC01, verifies resolution, then initiates the domain join. Useful for onboarding new machines without GUI steps.
 
+### Bash scripts (run on LINUX01)
+
+**join-ad-linux.sh**
+Joins Ubuntu to the corp.gmbh Active Directory domain. Syncs the clock, sets DNS, installs realmd/SSSD packages, discovers the domain, joins it and configures SSSD with simplified usernames. Sets up sudo access for IT department AD groups.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
