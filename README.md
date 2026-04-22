@@ -136,6 +136,9 @@ Creates CORP-Drive-Mapping GPO linked to the domain, CORP-Security-Baseline GPO 
 **Reset-UserPassword.ps1**
 L1 helpdesk script. Takes a username and ticket number. Shows identity verification prompt before doing anything. Generates a random temporary password, resets the account, forces change at next logon and writes a timestamped audit entry to a monthly CSV file. Follows DSGVO practice of never sending passwords via email.
 
+**Unlock-ADAccount.ps1**
+L1 helpdesk script. Checks account status, queries Event ID 4740 on the PDC to find the lockout source machine, unlocks the account, and writes an audit entry. The lockout source is the key piece of information for preventing repeat lockouts.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
