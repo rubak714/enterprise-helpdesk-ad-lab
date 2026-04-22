@@ -12,11 +12,12 @@ So I decided to build the same kind of 'simulated' environment that a real compa
 
 ## ☁️ What is in here
 
-This lab simulates "CORP GmbH", which is a fictional German company with about 50 employees across five departments. The infrastructure includes:
+This lab simulates **CORP GmbH**, a fictional German company with 52 employees across 8 departments. Three VMs, one domain, one story. The infrastructure includes:
 
 - A Windows Server 2025 domain controller (named as - DC01) running AD DS, DNS and DHCP
 - A Windows 11 workstation (named as - CLIENT01) joined to the domain
 - An Ubuntu 22.04 server (named as - LINUX01) joined to AD via realmd/SSSD
+
 
 ## ☁️ Why is this lab Important?
 
@@ -40,28 +41,129 @@ Not to mention, I will also be able to test the lab by -
 
 In short, I will have a mini DNS center in my PC!
 
-## ☁️ How to set up this lab from scratch
-*Update:* The infrastructure is now built inside an Azure Virtual Network (VNet) named CorpNet, consisting of:
+## ☁️ Project structure
 
-### VMs
+```
+enterprise-helpdesk-ad-lab/
+├── scripts/
+│   ├── powershell/        12 scripts for AD setup, helpdesk and monitoring
+│   └── bash/              3 scripts for Linux AD integration and Samba
+├── docs/
+│   ├── HELPDESK-SOP.md
+│   ├── ESCALATION-MATRIX.md
+│   ├── TROUBLESHOOTING-GUIDE.md
+│   └── gpo/               5 GPO export documents
+└── screenshots/           70+ screenshots across 7 modules
+```
+
+## ☁️ How to set up this lab from scratch
+*Update:* The infrastructure is now built inside an **Azure Virtual Network (VNet) named CorpNet**, consisting of:
+
+### Used VMs
 
 - DC01 (Windows Server 2025): The "Brain" of the company. Domain Controller, DNS, and DHCP.
 - CLIENT01 (Windows 11): An employee workstation joined to the corp.gmbh domain.
 - LINUX01 (Ubuntu 22.04): A Linux server integrated into the AD environment using realmd/SSSD.
 
-## ☁️ Current Option: Cloud Deployment (Microsoft Azure)
-To ensure the lab runs smoothly without slowing down my physical laptop, I used the following Azure resources:
+## ☁️ Azure infrastructure
 
-- Virtual Network: 10.0.0.0/16 (Internal subnet for secure VM communication).
+| Resource | Value |
+|---|---|
+| Resource group | RG-CorpGmbH |
+| Virtual network | VNet-CorpNet (10.0.0.0/16) |
+| Subnet | InternalSubnet (10.0.0.0/24) |
+| Domain | corp.gmbh |
+| DC01 private IP | 10.0.0.4 |
+| CLIENT01 private IP | 10.0.0.5 |
+| LINUX01 private IP | 10.0.0.6 |
+
+---
 
 ### VM Sizing:
 - DC01: Standard_B2als_v2 - 2vcpus, 4GiB memory - Windows Server *2025* Datacenter: Azure Edition - x64 Gen2
 - CLIENT01: Standard_DC1ds_v3 (1 vcpu, 8 GiB memory) - Windows 11 25H2 pro
 - LINUX01: Standard_D2ads_v7 (2 vcpus, 8 GiB memory) - Ubuntu server 24.04 LTS
 
+VMs deallocated and public IPs deleted after each session to keep costs minimal.
+
 ### Cost Management: 
 
 Configured Auto-shutdown schedules to preserve Azure credits.
+
+---
+
+## ☁️ What each module covers
+
+**Module 1: Infrastructure setup**
+Created the Azure resource group, virtual network and all three VMs. Set static private IPs. Verified connectivity between all three machines using Test-NetConnection from DC01.
+
+**Module 2: Active Directory, DNS and DHCP**
+Promoted DC01 to domain controller with domain corp.gmbh. Ran Setup-DNS.ps1 and Setup-DHCP.ps1 to configure services. Ran Setup-ADStructure.ps1 which built 18 OUs with German department names, 32 security groups and 52 user accounts across 8 departments in one go. Created a fine-grained password policy for IT administrators separately after the script failed silently.
+
+**Module 3: Joining CLIENT01 to the domain**
+Pointed DNS to DC01, joined corp.gmbh domain via System Properties. Moved CLIENT01 to OU=Workstations so GPOs apply correctly. Verified with gpresult showing Default Domain Policy applying from DC01.corp.gmbh. Also tested Join-Domain.ps1 and New-NetworkPrinter.ps1 scripts on CLIENT01.
+
+**Module 4: Linux integration**
+SSH'd into LINUX01 and ran join-ad-linux.sh which synced the clock, installed realmd and SSSD packages, discovered the domain and joined corp.gmbh. Verified with realm list and id thomas.mueller showing all his AD groups from the Linux side. Configured two Samba shares with AD group-based access using setup-samba-share.sh.
+
+**Module 5: Helpdesk ticket simulations**
+Ran Reset-UserPassword.ps1 and Unlock-ADAccount.ps1 as standalone scripts against real users. Then ran Run-HelpdeskSimulations.ps1 which processed 5 tickets end to end: password reset with audit logging, account unlock, department transfer, new user verification and monthly compliance audit. Enabled WinRM on CLIENT01 and used Get-SystemInfo.ps1 to pull system diagnostics remotely from DC01.
+
+**Module 6: Group Policy**
+Ran Setup-GPO.ps1 which created four GPOs. Configured password and lockout policy in Default Domain Policy aligned to BSI IT-Grundschutz. Verified everything in GPMC. Confirmed policies applying on CLIENT01 with gpresult and tested a domain user login.
+
+**Module 7: Security monitoring and final verification**
+Ran Get-SecurityEvents.ps1 against the live security event log covering failed logins, lockouts, new accounts and group changes. Exported an HTML report. Opened Event Viewer manually and filtered for Event IDs 4625 and 4740. Ran Verify-LabSetup.ps1 as a final health check across all modules.
+
+---
+
+## ☁️ Scripts reference
+
+### PowerShell scripts (run on DC01 unless noted)
+
+**Setup-ADStructure.ps1**
+Builds the entire company AD structure in one run. Creates 18 OUs with German names, 32 security groups across departments, file shares, IT tiers and applications and 52 user accounts with realistic German names. Also delegates L1 and L2 support permissions and attempts to create fine-grained password policies. The main script of the whole project.
+
+**Setup-DNS.ps1**
+Adds the reverse lookup zone, A records for linux01 and srv01, CNAME aliases for helpdesk and monitoring services, and sets 8.8.8.8 and 1.1.1.1 as external forwarders.
+
+**Setup-DHCP.ps1**
+Installs the DHCP role, authorizes it in AD, creates the CorpNet-LAN scope for range 10.0.0.100-200, excludes the static IP range, and adds a reservation for LINUX01 at 10.0.0.6.
+
+**Setup-GPO.ps1**
+Creates CORP-Drive-Mapping GPO linked to the domain, CORP-Security-Baseline GPO linked to OU=Workstations with login banner and AutoRun disabled, and CORP-Desktop-Policy with screen lock after 10 minutes. Password policy applied via secedit.
+
+**Reset-UserPassword.ps1**
+L1 helpdesk script. Takes a username and ticket number. Shows identity verification prompt before doing anything. Generates a random temporary password, resets the account, forces change at next logon and writes a timestamped audit entry to a monthly CSV file. Follows DSGVO practice of never sending passwords via email.
+
+**Unlock-ADAccount.ps1**
+L1 helpdesk script. Checks account status, queries Event ID 4740 on the PDC to find the lockout source machine, unlocks the account, and writes an audit entry. The lockout source is the key piece of information for preventing repeat lockouts.
+
+**Get-SystemInfo.ps1**
+Remote diagnostics script. Run with -ComputerName to pull OS, uptime, RAM, disk usage and top CPU processes from any domain machine without RDP'ing in. Useful for first-pass triage when a user reports slowness.
+
+**Get-SecurityEvents.ps1**
+Queries the security event log for the last N hours. Covers failed logins (4625), lockouts (4740), new accounts (4720) and group membership changes (4728/4732). Exports a colour-coded HTML report. Run with -Hours and -ExportHTML flags.
+
+**Run-HelpdeskSimulations.ps1**
+Processes 5 realistic helpdesk tickets against the live AD environment in sequence. Each ticket logs to a timestamped simulation log. Covers the most common L1 scenarios: password reset, account unlock, department transfer, new user verification and monthly compliance audit.
+
+**Verify-LabSetup.ps1**
+Health check script that runs after every session. Tests AD, DNS, DHCP, network connectivity, GPO existence and audit log directories. Shows PASS or FAIL per check. Good for catching configuration drift between sessions.
+
+**Join-Domain.ps1** *(run on CLIENT01)*
+Automates the domain join process on a new workstation. Sets DNS to DC01, verifies resolution, then initiates the domain join. Useful for onboarding new machines without GUI steps.
+
+### Bash scripts (run on LINUX01)
+
+**join-ad-linux.sh**
+Joins Ubuntu to the corp.gmbh Active Directory domain. Syncs the clock, sets DNS, installs realmd/SSSD packages, discovers the domain, joins it and configures SSSD with simplified usernames. Sets up sudo access for IT department AD groups.
+
+**linux-user-audit.sh**
+Audits users on the Linux server. Shows local users with login shells, AD users visible via SSSD, sudo access rules, recent failed SSH logins and who is currently logged in.
+
+**setup-samba-share.sh**
+Configures two Samba file shares with Active Directory group-based authentication: Allgemein for GRP-FileShare-Allgemein and Entwicklung for GRP-Dept-Entwicklung and GRP-Dept-IT. No local Samba users needed.
 
 ---
 
@@ -857,7 +959,22 @@ After fixing the script check and confirming all directories exist, ran again:
 
 ---
 
-## 🟦 Issues resolved across all modules
+## ☁️ Real issues hit during the build
+
+Eight things broke or needed fixing during this project. All documented as GitHub issues with root cause and fix:
+
+- AD DS promotion failed twice due to Unicode em-dashes in copy-pasted PowerShell parameters
+- CLIENT01 domain join failed repeatedly because corpAdmin is a local Azure account, not a domain account
+- LINUX01 DNS did not apply from resolved.conf alone because Azure overrides it at the interface level
+- Standard_B1s VM size unavailable in Germany West Central, used Standard_D2ads_v7 instead
+- PSO-IT-Admins fine-grained password policy failed silently in the structure script
+- Account unlock simulation failed because badPwdCount is system-owned and cannot be set manually
+- WinRM not enabled by default on CLIENT01, needed Enable-PSRemoting before remote diagnostics worked
+- DC01 IP check in Verify-LabSetup.ps1 checked for static origin but Azure always reports DHCP internally
+
+---
+
+## ☁️ Issues resolved across all modules
 
 | # | Title | Type | Module |
 |---|---|---|---|
@@ -879,6 +996,22 @@ After fixing the script check and confirming all directories exist, ran again:
 
 ---
 
+## 📄 Documentation
+
+**HELPDESK-SOP.md**
+Standard operating procedures covering 12 helpdesk scenarios from L1 to L3: password resets, account unlocks, new employee setup, printer issues, shared drive access, VPN problems, slow computers, GPO troubleshooting, DHCP issues, DNS failures and AD replication.
+
+**ESCALATION-MATRIX.md**
+Escalation flow from L1 to L2 to L3 with SLA targets, priority matrix and contact list. Shows how a ticket moves through the support tiers.
+
+**TROUBLESHOOTING-GUIDE.md**
+Decision trees for the four most common issues: cannot log in, cannot access shared drive, printer not working, VPN not connecting. Each tree walks through the diagnostic steps in order.
+
+**docs/gpo/ exports**
+Five markdown files documenting the Group Policy settings configured in this lab: password policy, account lockout, BitLocker for laptops, drive mapping with item-level targeting, software deployment and CIS-aligned security baseline.
+
+---
+
 ## ☁️ What is coming next
 
 | Module | Status |
@@ -890,6 +1023,8 @@ After fixing the script check and confirming all directories exist, ran again:
 | Module 5: Helpdesk ticket simulations | Done |
 | Module 6: Group Policy configuration | Done |
 | Module 7: Security event monitoring | Done |
+| Project 2: Automated user lifecycle management | Planned |
+| Project 3: IT infrastructure stack with Docker | Planned |
 
 ---
 
@@ -897,7 +1032,7 @@ After fixing the script check and confirming all directories exist, ran again:
   <summary> Earlier Option: Local Deployment (VirtualBox)</summary>
     Originally planned it, but I discontinued it due to host RAM constraints.
 
-    ### Created the VMs
+    Created the VMs
     Downloaded and installed VirtualBox from virtualbox.org. Created three VMs:
 
     - DC01: Windows Server 2025 Eval ISO
