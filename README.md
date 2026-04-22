@@ -12,11 +12,12 @@ So I decided to build the same kind of 'simulated' environment that a real compa
 
 ## ☁️ What is in here
 
-This lab simulates "CORP GmbH", which is a fictional German company with about 50 employees across five departments. The infrastructure includes:
+This lab simulates **CORP GmbH**, a fictional German company with 52 employees across 8 departments. Three VMs, one domain, one story. The infrastructure includes:
 
 - A Windows Server 2025 domain controller (named as - DC01) running AD DS, DNS and DHCP
 - A Windows 11 workstation (named as - CLIENT01) joined to the domain
 - An Ubuntu 22.04 server (named as - LINUX01) joined to AD via realmd/SSSD
+
 
 ## ☁️ Why is this lab Important?
 
@@ -39,6 +40,21 @@ Not to mention, I will also be able to test the lab by -
 - Simulating real help desk tickets
 
 In short, I will have a mini DNS center in my PC!
+
+## ☁️ Project structure
+
+```
+enterprise-helpdesk-ad-lab/
+├── scripts/
+│   ├── powershell/        12 scripts for AD setup, helpdesk and monitoring
+│   └── bash/              3 scripts for Linux AD integration and Samba
+├── docs/
+│   ├── HELPDESK-SOP.md
+│   ├── ESCALATION-MATRIX.md
+│   ├── TROUBLESHOOTING-GUIDE.md
+│   └── gpo/               5 GPO export documents
+└── screenshots/           70+ screenshots across 7 modules
+```
 
 ## ☁️ How to set up this lab from scratch
 *Update:* The infrastructure is now built inside an Azure Virtual Network (VNet) named CorpNet, consisting of:
