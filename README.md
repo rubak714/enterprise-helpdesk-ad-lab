@@ -959,7 +959,22 @@ After fixing the script check and confirming all directories exist, ran again:
 
 ---
 
-## 🟦 Issues resolved across all modules
+## ☁️ Real issues hit during the build
+
+Eight things broke or needed fixing during this project. All documented as GitHub issues with root cause and fix:
+
+- AD DS promotion failed twice due to Unicode em-dashes in copy-pasted PowerShell parameters
+- CLIENT01 domain join failed repeatedly because corpAdmin is a local Azure account, not a domain account
+- LINUX01 DNS did not apply from resolved.conf alone because Azure overrides it at the interface level
+- Standard_B1s VM size unavailable in Germany West Central, used Standard_D2ads_v7 instead
+- PSO-IT-Admins fine-grained password policy failed silently in the structure script
+- Account unlock simulation failed because badPwdCount is system-owned and cannot be set manually
+- WinRM not enabled by default on CLIENT01, needed Enable-PSRemoting before remote diagnostics worked
+- DC01 IP check in Verify-LabSetup.ps1 checked for static origin but Azure always reports DHCP internally
+
+---
+
+## ☁️ Issues resolved across all modules
 
 | # | Title | Type | Module |
 |---|---|---|---|
@@ -981,6 +996,22 @@ After fixing the script check and confirming all directories exist, ran again:
 
 ---
 
+## 📄 Documentation
+
+**HELPDESK-SOP.md**
+Standard operating procedures covering 12 helpdesk scenarios from L1 to L3: password resets, account unlocks, new employee setup, printer issues, shared drive access, VPN problems, slow computers, GPO troubleshooting, DHCP issues, DNS failures and AD replication.
+
+**ESCALATION-MATRIX.md**
+Escalation flow from L1 to L2 to L3 with SLA targets, priority matrix and contact list. Shows how a ticket moves through the support tiers.
+
+**TROUBLESHOOTING-GUIDE.md**
+Decision trees for the four most common issues: cannot log in, cannot access shared drive, printer not working, VPN not connecting. Each tree walks through the diagnostic steps in order.
+
+**docs/gpo/ exports**
+Five markdown files documenting the Group Policy settings configured in this lab: password policy, account lockout, BitLocker for laptops, drive mapping with item-level targeting, software deployment and CIS-aligned security baseline.
+
+---
+
 ## ☁️ What is coming next
 
 | Module | Status |
@@ -992,6 +1023,8 @@ After fixing the script check and confirming all directories exist, ran again:
 | Module 5: Helpdesk ticket simulations | Done |
 | Module 6: Group Policy configuration | Done |
 | Module 7: Security event monitoring | Done |
+| Project 2: Automated user lifecycle management | Planned |
+| Project 3: IT infrastructure stack with Docker | Planned |
 
 ---
 
@@ -999,7 +1032,7 @@ After fixing the script check and confirming all directories exist, ran again:
   <summary> Earlier Option: Local Deployment (VirtualBox)</summary>
     Originally planned it, but I discontinued it due to host RAM constraints.
 
-    ### Created the VMs
+    Created the VMs
     Downloaded and installed VirtualBox from virtualbox.org. Created three VMs:
 
     - DC01: Windows Server 2025 Eval ISO
