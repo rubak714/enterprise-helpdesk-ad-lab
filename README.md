@@ -57,23 +57,34 @@ enterprise-helpdesk-ad-lab/
 ```
 
 ## ☁️ How to set up this lab from scratch
-*Update:* The infrastructure is now built inside an Azure Virtual Network (VNet) named CorpNet, consisting of:
+*Update:* The infrastructure is now built inside an **Azure Virtual Network (VNet) named CorpNet**, consisting of:
 
-### VMs
+### Used VMs
 
 - DC01 (Windows Server 2025): The "Brain" of the company. Domain Controller, DNS, and DHCP.
 - CLIENT01 (Windows 11): An employee workstation joined to the corp.gmbh domain.
 - LINUX01 (Ubuntu 22.04): A Linux server integrated into the AD environment using realmd/SSSD.
 
-## ☁️ Current Option: Cloud Deployment (Microsoft Azure)
-To ensure the lab runs smoothly without slowing down my physical laptop, I used the following Azure resources:
+## ☁️ Azure infrastructure
 
-- Virtual Network: 10.0.0.0/16 (Internal subnet for secure VM communication).
+| Resource | Value |
+|---|---|
+| Resource group | RG-CorpGmbH |
+| Virtual network | VNet-CorpNet (10.0.0.0/16) |
+| Subnet | InternalSubnet (10.0.0.0/24) |
+| Domain | corp.gmbh |
+| DC01 private IP | 10.0.0.4 |
+| CLIENT01 private IP | 10.0.0.5 |
+| LINUX01 private IP | 10.0.0.6 |
+
+---
 
 ### VM Sizing:
 - DC01: Standard_B2als_v2 - 2vcpus, 4GiB memory - Windows Server *2025* Datacenter: Azure Edition - x64 Gen2
 - CLIENT01: Standard_DC1ds_v3 (1 vcpu, 8 GiB memory) - Windows 11 25H2 pro
 - LINUX01: Standard_D2ads_v7 (2 vcpus, 8 GiB memory) - Ubuntu server 24.04 LTS
+
+VMs deallocated and public IPs deleted after each session to keep costs minimal.
 
 ### Cost Management: 
 
