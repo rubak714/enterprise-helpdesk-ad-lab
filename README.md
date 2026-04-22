@@ -162,6 +162,11 @@ Joins Ubuntu to the corp.gmbh Active Directory domain. Syncs the clock, sets DNS
 **linux-user-audit.sh**
 Audits users on the Linux server. Shows local users with login shells, AD users visible via SSSD, sudo access rules, recent failed SSH logins and who is currently logged in.
 
+**setup-samba-share.sh**
+Configures two Samba file shares with Active Directory group-based authentication: Allgemein for GRP-FileShare-Allgemein and Entwicklung for GRP-Dept-Entwicklung and GRP-Dept-IT. No local Samba users needed.
+
+---
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
