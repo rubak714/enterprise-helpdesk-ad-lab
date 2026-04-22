@@ -103,6 +103,9 @@ Promoted DC01 to domain controller with domain corp.gmbh. Ran Setup-DNS.ps1 and 
 **Module 3: Joining CLIENT01 to the domain**
 Pointed DNS to DC01, joined corp.gmbh domain via System Properties. Moved CLIENT01 to OU=Workstations so GPOs apply correctly. Verified with gpresult showing Default Domain Policy applying from DC01.corp.gmbh. Also tested Join-Domain.ps1 and New-NetworkPrinter.ps1 scripts on CLIENT01.
 
+**Module 4: Linux integration**
+SSH'd into LINUX01 and ran join-ad-linux.sh which synced the clock, installed realmd and SSSD packages, discovered the domain and joined corp.gmbh. Verified with realm list and id thomas.mueller showing all his AD groups from the Linux side. Configured two Samba shares with AD group-based access using setup-samba-share.sh.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
