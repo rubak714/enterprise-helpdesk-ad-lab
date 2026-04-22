@@ -130,6 +130,9 @@ Adds the reverse lookup zone, A records for linux01 and srv01, CNAME aliases for
 **Setup-DHCP.ps1**
 Installs the DHCP role, authorizes it in AD, creates the CorpNet-LAN scope for range 10.0.0.100-200, excludes the static IP range, and adds a reservation for LINUX01 at 10.0.0.6.
 
+**Setup-GPO.ps1**
+Creates CORP-Drive-Mapping GPO linked to the domain, CORP-Security-Baseline GPO linked to OU=Workstations with login banner and AutoRun disabled, and CORP-Desktop-Policy with screen lock after 10 minutes. Password policy applied via secedit.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
