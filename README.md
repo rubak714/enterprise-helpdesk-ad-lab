@@ -117,6 +117,13 @@ Ran Get-SecurityEvents.ps1 against the live security event log covering failed l
 
 ---
 
+## ☁️ Scripts reference
+
+### PowerShell scripts (run on DC01 unless noted)
+
+**Setup-ADStructure.ps1**
+Builds the entire company AD structure in one run. Creates 18 OUs with German names, 32 security groups across departments, file shares, IT tiers and applications and 52 user accounts with realistic German names. Also delegates L1 and L2 support permissions and attempts to create fine-grained password policies. The main script of the whole project.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
