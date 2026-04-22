@@ -127,6 +127,9 @@ Builds the entire company AD structure in one run. Creates 18 OUs with German na
 **Setup-DNS.ps1**
 Adds the reverse lookup zone, A records for linux01 and srv01, CNAME aliases for helpdesk and monitoring services, and sets 8.8.8.8 and 1.1.1.1 as external forwarders.
 
+**Setup-DHCP.ps1**
+Installs the DHCP role, authorizes it in AD, creates the CorpNet-LAN scope for range 10.0.0.100-200, excludes the static IP range, and adds a reservation for LINUX01 at 10.0.0.6.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
