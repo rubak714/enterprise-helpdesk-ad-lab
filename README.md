@@ -142,6 +142,9 @@ L1 helpdesk script. Checks account status, queries Event ID 4740 on the PDC to f
 **Get-SystemInfo.ps1**
 Remote diagnostics script. Run with -ComputerName to pull OS, uptime, RAM, disk usage and top CPU processes from any domain machine without RDP'ing in. Useful for first-pass triage when a user reports slowness.
 
+**Get-SecurityEvents.ps1**
+Queries the security event log for the last N hours. Covers failed logins (4625), lockouts (4740), new accounts (4720) and group membership changes (4728/4732). Exports a colour-coded HTML report. Run with -Hours and -ExportHTML flags.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
