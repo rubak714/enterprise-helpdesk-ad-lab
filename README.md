@@ -151,6 +151,9 @@ Processes 5 realistic helpdesk tickets against the live AD environment in sequen
 **Verify-LabSetup.ps1**
 Health check script that runs after every session. Tests AD, DNS, DHCP, network connectivity, GPO existence and audit log directories. Shows PASS or FAIL per check. Good for catching configuration drift between sessions.
 
+**Join-Domain.ps1** *(run on CLIENT01)*
+Automates the domain join process on a new workstation. Sets DNS to DC01, verifies resolution, then initiates the domain join. Useful for onboarding new machines without GUI steps.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
