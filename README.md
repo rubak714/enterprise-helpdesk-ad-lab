@@ -92,6 +92,11 @@ Configured Auto-shutdown schedules to preserve Azure credits.
 
 ---
 
+## ☁️ What each module covers
+
+**Module 1: Infrastructure setup**
+Created the Azure resource group, virtual network and all three VMs. Set static private IPs. Verified connectivity between all three machines using Test-NetConnection from DC01.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
