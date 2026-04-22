@@ -106,6 +106,9 @@ Pointed DNS to DC01, joined corp.gmbh domain via System Properties. Moved CLIENT
 **Module 4: Linux integration**
 SSH'd into LINUX01 and ran join-ad-linux.sh which synced the clock, installed realmd and SSSD packages, discovered the domain and joined corp.gmbh. Verified with realm list and id thomas.mueller showing all his AD groups from the Linux side. Configured two Samba shares with AD group-based access using setup-samba-share.sh.
 
+**Module 5: Helpdesk ticket simulations**
+Ran Reset-UserPassword.ps1 and Unlock-ADAccount.ps1 as standalone scripts against real users. Then ran Run-HelpdeskSimulations.ps1 which processed 5 tickets end to end: password reset with audit logging, account unlock, department transfer, new user verification and monthly compliance audit. Enabled WinRM on CLIENT01 and used Get-SystemInfo.ps1 to pull system diagnostics remotely from DC01.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
