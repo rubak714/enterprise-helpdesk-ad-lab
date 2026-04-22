@@ -145,6 +145,9 @@ Remote diagnostics script. Run with -ComputerName to pull OS, uptime, RAM, disk 
 **Get-SecurityEvents.ps1**
 Queries the security event log for the last N hours. Covers failed logins (4625), lockouts (4740), new accounts (4720) and group membership changes (4728/4732). Exports a colour-coded HTML report. Run with -Hours and -ExportHTML flags.
 
+**Run-HelpdeskSimulations.ps1**
+Processes 5 realistic helpdesk tickets against the live AD environment in sequence. Each ticket logs to a timestamped simulation log. Covers the most common L1 scenarios: password reset, account unlock, department transfer, new user verification and monthly compliance audit.
+
 ## ☁️ Module 1: Infrastructure Setup
 
 ### 🟦 Step 1: Virtual Network
